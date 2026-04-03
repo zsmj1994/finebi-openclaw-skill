@@ -22,6 +22,7 @@ import click
 
 from cli_anything.nuclear import __version__
 from cli_anything.nuclear.core import auth as _auth
+from cli_anything.nuclear.core import entry as _entry
 from cli_anything.nuclear.core import config as _config
 from cli_anything.nuclear.core import dashboard as _dashboard
 from cli_anything.nuclear.core import data as _data
@@ -33,7 +34,7 @@ from cli_anything.nuclear.core import spider as _spider
 from cli_anything.nuclear.core import subject as _subject
 from cli_anything.nuclear.core import table as _table
 from cli_anything.nuclear.core.session import NuclearError, NuclearSession
-from cli_anything.nuclear.utils.output import output_result, print_tree
+from cli_anything.nuclear.utils.output import output_result, print_entry_tree, print_tree
 
 
 # ---------------------------------------------------------------------------
@@ -953,6 +954,75 @@ def table_duplicate_check(ctx: click.Context, body: str) -> None:
         raise click.BadParameter(f"Invalid JSON: {e}")
     result = _table.table_duplicate_check(parsed)
     output_result(ctx, result)
+
+
+# ---------------------------------------------------------------------------
+# entry group  (Decision platform directory / template tree)
+# ---------------------------------------------------------------------------
+
+@cli.group("entry", help="Decision platform entry directory and template tree.")
+def entry_group() -> None:
+    pass
+
+
+@entry_group.command("resource")
+@click.option("--publish-task-id", required=True, help="Published resource ID from the entry tree.")
+@click.pass_context
+def entry_resource(ctx: click.Context, publish_task_id: str) -> None:
+    """Get dashboard and component info for a published resource."""
+    result = _entry.entry_resource(publish_task_id)
+
+    if ctx.obj and ctx.obj.get("json_mode"):
+        click.echo(json.dumps(result, indent=2, ensure_ascii=False))
+        return
+
+    data = result.get("data", result) if isinstance(result, dict) else result
+
+    _item_type_labels = {1: "仪表板", 2: "组件"}
+    resources = data.get("resourceList", []) if isinstance(data, dict) else []
+
+    if not resources:
+        output_result(ctx, result)
+        return
+
+    subject_name = data.get("name", "") if isinstance(data, dict) else ""
+    if subject_name:
+        click.echo(f"主题: {subject_name}\n")
+
+    output_result(
+        ctx,
+        resources,
+        table_headers=["id", "name", "itemType"],
+        row_mapper=lambda r: (
+            r.get("id", ""),
+            r.get("name", ""),
+            _item_type_labels.get(r.get("itemType", 0), str(r.get("itemType", ""))),
+        ),
+    )
+
+
+@entry_group.command("tree")
+@click.pass_context
+def entry_tree(ctx: click.Context) -> None:
+    """List templates mounted in the Decision platform directory tree."""
+    result = _entry.entry_tree()
+
+    if ctx.obj and ctx.obj.get("json_mode"):
+        click.echo(json.dumps(result, indent=2, ensure_ascii=False))
+        return
+
+    # The API may wrap the list under "data"
+    nodes = result
+    if isinstance(result, dict):
+        nodes = result.get("data", result.get("children", result.get("list", [])))
+    if isinstance(nodes, dict):
+        nodes = [nodes]
+
+    if not nodes:
+        click.echo("(empty)")
+        return
+
+    print_entry_tree(nodes)
 
 
 # ---------------------------------------------------------------------------

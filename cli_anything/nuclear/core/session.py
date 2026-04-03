@@ -156,6 +156,33 @@ class NuclearSession:
         resp = self.post(path, json=body, params=params)
         return self._parse_response(resp, require_success)
 
+    def decision_get(
+        self,
+        path: str,
+        params: Optional[dict[str, Any]] = None,
+        *,
+        require_success: bool = True,
+    ) -> FineRespond:
+        """Call GET on the FineReport Decision platform and return parsed JSON."""
+        timeout = self.cfg.timeout
+        url = self.cfg.decision_url(path)
+        resp = self._session.get(url, params=self._auth_params(params), timeout=timeout)
+        return self._parse_response(resp, require_success)
+
+    def decision_post(
+        self,
+        path: str,
+        body: Optional[dict[str, Any]] = None,
+        params: Optional[dict[str, Any]] = None,
+        *,
+        require_success: bool = True,
+    ) -> FineRespond:
+        """Call POST on the FineReport Decision platform and return parsed JSON."""
+        timeout = self.cfg.timeout
+        url = self.cfg.decision_url(path)
+        resp = self._session.post(url, json=body, params=self._auth_params(params), timeout=timeout)
+        return self._parse_response(resp, require_success)
+
     def api_file_get(
         self,
         path: str,

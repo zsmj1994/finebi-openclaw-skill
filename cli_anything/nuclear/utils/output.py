@@ -107,6 +107,62 @@ def _ensure_list(data: Any) -> list[Any]:
 # Tree formatting
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Entry / Decision directory tree formatting
+# ---------------------------------------------------------------------------
+
+_ENTRY_TYPE_LABELS: dict[int, str] = {
+    3: "[dir]",
+    201: "[entry]",
+}
+
+_ENTRY_ITEM_TYPE_LABELS: dict[int, str] = {
+    1: "仪表板",
+    2: "组件",
+}
+
+
+def _build_entry_tree(flat: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Convert a flat node list (with ``pId`` pointers) into a nested tree."""
+    by_id: dict[str, dict[str, Any]] = {n["id"]: dict(n, _children=[]) for n in flat}
+    roots: list[dict[str, Any]] = []
+    for node in by_id.values():
+        pid = node.get("pId")
+        if pid and pid in by_id:
+            by_id[pid]["_children"].append(node)
+        else:
+            roots.append(node)
+    return roots
+
+
+def print_entry_tree(nodes: list[dict[str, Any]], prefix: str = "") -> None:
+    """Recursively print a Decision-platform entry/directory tree.
+
+    Accepts either a nested list (each node has ``children``) or a flat list
+    with ``pId`` parent pointers (as returned by ``/decision/v10/view/entry/tree``).
+    Display name is taken from ``text`` then ``name`` then ``id``.
+    """
+    # If the list looks flat (any node has a "pId" key), build the nested tree first
+    if nodes and "pId" in nodes[0]:
+        nodes = _build_entry_tree(nodes)
+
+    for i, node in enumerate(nodes):
+        last = i == len(nodes) - 1
+        connector = "└── " if last else "├── "
+        entry_type = node.get("entryType", 0)
+        label = _ENTRY_TYPE_LABELS.get(entry_type, "")
+        name = node.get("text") or node.get("name") or node.get("id", "?")
+        template_id = node.get("templateId", "")
+        id_suffix = f"  [id={template_id}]" if template_id else ""
+        display = f"{label} {name}{id_suffix}" if label else f"{name}{id_suffix}"
+        click.echo(f"{prefix}{connector}{display}")
+
+        children = node.get("_children") or node.get("children", [])
+        if children:
+            child_prefix = prefix + ("    " if last else "│   ")
+            print_entry_tree(children, prefix=child_prefix)
+
+
 TREE_CHILDREN_KEYS = ("folders", "subjects")
 TREE_ITEM_KEYS = ("tables", "indexes", "dimensions", "businessModels")
 TREE_NAME_KEY = "name"

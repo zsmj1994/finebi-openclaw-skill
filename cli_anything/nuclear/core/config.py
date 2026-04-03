@@ -136,6 +136,25 @@ class Config:
         """Build a full API URL from a relative path."""
         return f"{self.base_url}/{path.lstrip('/')}"
 
+    def decision_url(self, path: str) -> str:
+        """Build a full URL for the FineReport Decision platform.
+
+        Handles two common base_url patterns:
+        - BI URL:       ``http://localhost:8080/bi``       → WebReport root = ``http://localhost:8080/WebReport``
+        - Decision URL: ``http://localhost:8080/WebReport/decision`` → WebReport root = ``http://localhost:8080/WebReport``
+        """
+        base = self.base_url
+        if "/WebReport" in base:
+            # Already points at (or inside) the WebReport webapp – find the root
+            idx = base.index("/WebReport")
+            webroot = base[: idx + len("/WebReport")]
+        else:
+            # Derive from BI-style URL by stripping the last path segment
+            parts = base.rsplit("/", 1)
+            server_root = parts[0] if len(parts) == 2 and parts[1] else base
+            webroot = f"{server_root}/WebReport"
+        return f"{webroot}/{path.lstrip('/')}"
+
 
 # Global config instance (lazy)
 _config: Optional[Config] = None
