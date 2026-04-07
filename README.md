@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# finebi-openclaw
-=======
 # finebi-openclaw-skill
 
 An [OpenClaw](https://openclaw.ai) skill plugin that integrates with [FineBI](https://www.fanruan.com/finebi) to provide data analysis and visualization capabilities through natural language.
@@ -61,4 +58,3 @@ This plugin exposes multiple binaries: `finebi-skill`, `finebi-cli`, and `finebi
 ## License
 
 ISC
->>>>>>> f62e9cc (init)
