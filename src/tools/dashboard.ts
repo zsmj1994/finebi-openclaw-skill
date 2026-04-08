@@ -195,3 +195,29 @@ export async function deleteDashboard(
     };
   }
 }
+
+/**
+ * Get widget data for a dashboard report.
+ * GET /webroot/decision/v5/api/dashboard/report/widget/data
+ * 
+ * @param reportId The report/dashboard ID
+ * @param widgetId The real widget ID
+ */
+export async function getWidgetData(
+  reportId: string,
+  widgetId: string
+): Promise<ToolResult<any>> {
+  try {
+    const config = await getConfig();
+    const url = `/webroot/decision/v5/api/dashboard/report/widget/data?reportId=${encodeURIComponent(reportId)}&widgetId=${encodeURIComponent(widgetId)}`;
+    const data = await fineBIAuthFetch(config, url, {
+      method: "GET",
+    });
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}

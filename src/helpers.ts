@@ -141,9 +141,11 @@ export async function getToken(config: FineBIConfig, forceRefresh = false): Prom
     }
   );
 
+  console.log(response.config.params)
+
   const data = parseResponseData(response.data) as { accessToken?: string; errorCode?: string; errorMsg?: string };
   if (data.errorCode || !data.accessToken) {
-    throw new Error(`FineBI login failed: ${data.errorMsg ?? "unknown error"} (code: ${data.errorCode})`);
+    throw new Error(`FineBI login failed: username : ${config.username} ${data.errorMsg ?? "unknown error"} (code: ${data.errorCode})`);
   }
 
   cachedToken = data.accessToken;
@@ -186,7 +188,7 @@ export async function fineBIAuthFetch(
     let parsedData = parseResponseData(response.data);
 
     // Check if token expired inside HTTP 200 response
-    if (parsedData && parsedData.errorCode === FineBIErrorCode.TOKEN_EXPIRED) {
+    if (parsedData && [FineBIErrorCode.TOKEN_EXPIRED, FineBIErrorCode.LOGIN_INFO_NULL, FineBIErrorCode.LOGIN_FAILED].includes(parsedData.errorCode)) {
       token = await getToken(config, true);
       response = await makeRequest(token);
       parsedData = parseResponseData(response.data);

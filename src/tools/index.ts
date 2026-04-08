@@ -17,6 +17,7 @@ export {
   createDashboard,
   renameDashboard,
   deleteDashboard,
+  getWidgetData,
 } from "./dashboard.js";
 export {
   reportList,
@@ -53,4 +54,7 @@ export {
   subjectSearch,
   subjectGroupsSearch,
   subjectConsanguinity,
+  getPublishedSubjectResources,
 } from "./subject.js";
+export { getEntryTree } from "./entry.js";
+

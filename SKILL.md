@@ -86,6 +86,24 @@ entrypoint: finebi-skill
 - `subjectId` (string, 必填): 主题 ID
 
 
+### `get-entry-tree`
+获取用户有权限查看的目录树。
+
+**参数:** 无
+
+### `get-published-subject-resources`
+根据目录节点的 templateId（即 publishTaskId）查询挂出的分析主题挂出的资源（如组件和仪表板）。
+
+**参数:**
+- `taskId` (string, 必填): 目录节点的 templateId 或发布任务的 publishTaskId
+
+### `get-widget-data`
+获取特定仪表板中具体组件的数据。
+
+**参数:**
+- `reportId` (string, 必填): 仪表板/报表 ID
+- `widgetId` (string, 必填): 组件 ID
+
 ## 常见工作流 (Common Workflows)
 
 ### 使用/获取数据集数据

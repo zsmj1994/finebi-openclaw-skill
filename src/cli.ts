@@ -17,6 +17,9 @@ import {
   createDashboard,
   renameDashboard,
   deleteDashboard,
+  getWidgetData,
+  getEntryTree,
+  getPublishedSubjectResources,
 } from "./tools/index.js";
 import { runInit } from "./init.js";
 
@@ -60,6 +63,23 @@ program
   });
 
 program
+  .command("get-entry-tree")
+  .description("Get the directory tree the user has permission to view")
+  .action(async () => {
+    const res = await getEntryTree();
+    handleResult(res);
+  });
+
+program
+  .command("get-published-subject-resources")
+  .description("Query the resources exposed by a published analysis subject using a templateId/publishTaskId")
+  .requiredOption("-t, --task-id <id>", "The templateId or publishTaskId")
+  .action(async (options) => {
+    const res = await getPublishedSubjectResources(options.taskId);
+    handleResult(res);
+  });
+
+program
   .command("list-datasets")
   .description("List all available FineBI datasets")
   .action(async () => {
@@ -83,6 +103,16 @@ program
       }
     }
     const res = await queryDataset(options.dataset, filters);
+    handleResult(res);
+  });
+
+program
+  .command("get-widget-data")
+  .description("Get data for a specific widget inside a dashboard")
+  .requiredOption("-r, --report-id <id>", "Dashboard/Report ID")
+  .requiredOption("-w, --widget-id <id>", "Widget ID")
+  .action(async (options) => {
+    const res = await getWidgetData(options.reportId, options.widgetId);
     handleResult(res);
   });
 
