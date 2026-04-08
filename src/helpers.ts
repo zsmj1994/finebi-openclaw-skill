@@ -3,7 +3,7 @@
  */
 
 import axios from "axios";
-import { type FineBIConfig, type ExportResult, type ToolResult, FineBIErrorCode } from "./types.js";
+import { type FineBIConfig, type ExportResult, FineBIErrorCode } from "./types.js";
 
 import * as dotenv from "dotenv";
 
@@ -14,18 +14,14 @@ import { fileURLToPath } from "url";
 // ---------------------------------------------------------------------------
 
 export async function getConfig(): Promise<FineBIConfig> {
-  const envFiles = [
-    path.join(process.cwd(), ".env"),
-    path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.env"),
-  ];
-
-  for (const envPath of envFiles) {
-    if (fs.existsSync(envPath)) {
-      dotenv.config({ path: envPath });
-    }
+  // Try to load from the project root .env first (when installed globally)
+  if (import.meta.url) {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    dotenv.config({ path: path.join(__dirname, "../.env") });
   }
 
-  // Also generic dotenv load
+  // Also try to load from current working directory as a fallback
   dotenv.config();
 
   const baseUrl = process.env["FINEBI_BASE_URL"];
@@ -33,12 +29,9 @@ export async function getConfig(): Promise<FineBIConfig> {
   const password = process.env["FINEBI_PASSWORD"];
 
   if (!baseUrl || !username || !password) {
-    // We don't throw here anymore, let the CLI or caller handle the missing config message
-    return {
-      baseUrl: baseUrl || "",
-      username: username || "",
-      password: password || "",
-    };
+    throw new Error(
+      "Missing required environment variables: FINEBI_BASE_URL, FINEBI_USERNAME, FINEBI_PASSWORD"
+    );
   }
 
   return { baseUrl, username, password };
@@ -78,7 +71,6 @@ export async function fineBIFetch(
   options?: { method?: "GET" | "POST" | "PUT" | "DELETE"; data?: unknown; headers?: Record<string, string> }
 ): Promise<unknown> {
   const url = `${config.baseUrl}${path}`;
-  console.log(url);
   const response = await axios({
     url,
     method: options?.method ?? "GET",
@@ -185,9 +177,6 @@ export async function fineBIAuthFetch(
         ...options?.headers,
       },
       data: options?.data,
-      params: {
-        fine_auth_token: token,
-      },
     });
   };
 
@@ -197,7 +186,7 @@ export async function fineBIAuthFetch(
     let parsedData = parseResponseData(response.data);
 
     // Check if token expired inside HTTP 200 response
-    if (parsedData && [FineBIErrorCode.TOKEN_EXPIRED, FineBIErrorCode.LOGIN_INFO_IS_NULL].includes(parsedData.errorCode)) {
+    if (parsedData && parsedData.errorCode === FineBIErrorCode.TOKEN_EXPIRED) {
       token = await getToken(config, true);
       response = await makeRequest(token);
       parsedData = parseResponseData(response.data);
@@ -207,7 +196,7 @@ export async function fineBIAuthFetch(
   } catch (error: any) {
     // Also check if token expired inside an HTTP error response
     let errorData = error.response?.data ? parseResponseData(error.response.data) : null;
-    if (errorData?.errorCode && [FineBIErrorCode.TOKEN_EXPIRED, FineBIErrorCode.LOGIN_INFO_IS_NULL].includes(errorData.errorCode)) {
+    if (errorData?.errorCode === FineBIErrorCode.TOKEN_EXPIRED) {
       console.log("Token expired, refreshing token...");
       token = await getToken(config, true);
       const response = await makeRequest(token);
@@ -237,9 +226,6 @@ export async function fineBIAuthDownload(
         "X-Requested-With": "XMLHttpRequest",
         Authorization: `Bearer ${token}`,
       },
-      params: {
-        fine_auth_token: token,
-      },
       responseType: "arraybuffer", // expecting binary
     });
   };
@@ -251,17 +237,17 @@ export async function fineBIAuthDownload(
     response = await makeRequest(token);
   } catch (error: any) {
     let isTokenExpired = false;
-    if (error.response?.data instanceof ArrayBuffer || Buffer.isBuffer(error.response?.data) || error.response?.data instanceof Uint8Array) {
+    if (error.response?.data instanceof ArrayBuffer) {
       try {
         const text = new TextDecoder().decode(error.response.data);
         const jsonData = JSON.parse(text);
-        if ([FineBIErrorCode.TOKEN_EXPIRED, FineBIErrorCode.LOGIN_INFO_IS_NULL].includes(jsonData.errorCode)) {
+        if (jsonData.errorCode === FineBIErrorCode.TOKEN_EXPIRED) {
           isTokenExpired = true;
         }
       } catch (e) {
         // Not a JSON response inside ArrayBuffer error
       }
-    } else if (error.response?.data?.errorCode && [FineBIErrorCode.TOKEN_EXPIRED, FineBIErrorCode.LOGIN_INFO_IS_NULL].includes(error.response.data.errorCode)) {
+    } else if (error.response?.data?.errorCode === FineBIErrorCode.TOKEN_EXPIRED) {
       isTokenExpired = true;
     }
 
@@ -277,61 +263,27 @@ export async function fineBIAuthDownload(
 
   // Even if HTTP status is 200, the body might be JSON containing the token error
   let contentType = (response.headers["content-type"] as string) ?? "application/octet-stream";
-  if (response.data instanceof ArrayBuffer || Buffer.isBuffer(response.data) || response.data instanceof Uint8Array) {
+  if (contentType.includes("application/json") && response.data instanceof ArrayBuffer) {
+    const text = new TextDecoder().decode(response.data);
     try {
-      const text = new TextDecoder().decode(response.data);
-      const parsedData = parseResponseData(text);
-      if (parsedData && [FineBIErrorCode.TOKEN_EXPIRED, FineBIErrorCode.LOGIN_INFO_IS_NULL].includes(parsedData.errorCode)) {
+      const jsonData = JSON.parse(text);
+      if (jsonData.errorCode === FineBIErrorCode.TOKEN_EXPIRED) {
         token = await getToken(config, true);
         response = await makeRequest(token);
         contentType = (response.headers["content-type"] as string) ?? "application/octet-stream";
-        
-        // Double check after retry
-        if (response.data instanceof ArrayBuffer || Buffer.isBuffer(response.data) || response.data instanceof Uint8Array) {
-          const retryText = new TextDecoder().decode(response.data);
-          const retryData = parseResponseData(retryText);
-          if (retryData && retryData.errorCode) {
-            throw new Error(`FineBI request failed: ${retryData.errorMsg ?? "unknown"} (code: ${retryData.errorCode})`);
-          }
-        }
-      } else if (parsedData && parsedData.errorCode) {
-        throw new Error(`FineBI request failed: ${parsedData.errorMsg ?? "unknown"} (code: ${parsedData.errorCode})`);
       }
     } catch (e) {
-      // Ignored if not JSON or text decode fails
+      // Not JSON or parse failed
     }
   }
 
   const disposition = response.headers["content-disposition"] as string | undefined;
   let filename: string | undefined;
-
   if (disposition) {
-    // First try the RFC 5987 format (filename*=UTF-8''...)
-    const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
-    if (utf8Match?.[1]) {
-      try {
-        filename = decodeURIComponent(utf8Match[1]);
-      } catch {
-        filename = utf8Match[1];
-      }
-    } else {
-      // Fallback to the regular filename="..."
-      const match = disposition.match(/filename=(?:"([^"]+)"|([^;]+))/i);
-      let rawFilename = match?.[1] || match?.[2];
-      if (rawFilename) {
-        // Axios parses headers as latin1. The server may have sent UTF-8 bytes directly.
-        try {
-          const bufferDecoded = Buffer.from(rawFilename, "latin1").toString("utf8");
-          // \ufffd is the unicode replacement character for un-decodable bytes
-          if (bufferDecoded.includes("\ufffd")) {
-            filename = decodeURIComponent(rawFilename);
-          } else {
-            filename = bufferDecoded;
-          }
-        } catch {
-          filename = rawFilename;
-        }
-      }
+    // Match filename from Content-Disposition header
+    const match = disposition.match(/filename\*?=(?:UTF-8''|")?(.*?)(?:"|;|$)/i);
+    if (match?.[1]) {
+      filename = decodeURIComponent(match[1]);
     }
   }
 
