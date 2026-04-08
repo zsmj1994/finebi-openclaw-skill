@@ -14,15 +14,12 @@ import { fileURLToPath } from "url";
 // ---------------------------------------------------------------------------
 
 export async function getConfig(): Promise<FineBIConfig> {
-  // Try to load from the project root .env first (when installed globally)
+  // Load from the project root .env
   if (import.meta.url) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     dotenv.config({ path: path.join(__dirname, "../.env") });
   }
-
-  // Also try to load from current working directory as a fallback
-  dotenv.config();
 
   const baseUrl = process.env["FINEBI_BASE_URL"];
   const username = process.env["FINEBI_USERNAME"];
@@ -130,7 +127,7 @@ export async function getToken(config: FineBIConfig, forceRefresh = false): Prom
   }
 
   const response = await axios.get(
-    `${config.baseUrl}/webroot/decision/login/cross/domain`,
+    `${config.baseUrl}/login/cross/domain`,
     {
       params: {
         fine_username: config.username,

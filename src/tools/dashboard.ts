@@ -24,7 +24,7 @@ export async function getDashboardUserInfo(): Promise<ToolResult<DashboardUserIn
     const config = await getConfig();
     const response = await fineBIAuthFetch(
       config,
-      "/webroot/decision/v5/api/dashboard/user/info"
+      "/v5/api/dashboard/user/info"
     );
     const result = response as { data: DashboardUserInfo };
     return { success: true, data: result.data };
@@ -52,7 +52,7 @@ export async function searchDashboards(
     });
     const response = await fineBIAuthFetch(
       config,
-      `/webroot/decision/v5/api/dashboard/search?${query.toString()}`
+      `/v5/api/dashboard/search?${query.toString()}`
     );
     const result = response as { data: SearchDashboardsResult };
     return { success: true, data: result.data };
@@ -77,7 +77,7 @@ export async function getDashboardsBySubject(
     const query = new URLSearchParams({ subjectId: params.subjectId });
     const response = await fineBIAuthFetch(
       config,
-      `/webroot/decision/v5/api/platform/dashboard/list?${query.toString()}`
+      `/v5/api/platform/dashboard/list?${query.toString()}`
     );
     const result = response as { data: DashboardSummary[] };
     return { success: true, data: result.data };
@@ -102,7 +102,7 @@ export async function getDashboardDetail(
     const query = new URLSearchParams({ reportId });
     const response = await fineBIAuthFetch(
       config,
-      `/webroot/decision/v5/api/dashboard/get?${query.toString()}`
+      `/v5/api/dashboard/get?${query.toString()}`
     );
     const result = response as { data: DashboardDetail };
     return { success: true, data: result.data };
@@ -126,7 +126,7 @@ export async function createDashboard(
     const config = await getConfig();
     const response = await fineBIAuthFetch(
       config,
-      "/webroot/decision/v5/api/dashboard/create",
+      "/v5/api/dashboard/create",
       {
         method: "POST",
         data: params,
@@ -154,7 +154,7 @@ export async function renameDashboard(
     const config = await getConfig();
     await fineBIAuthFetch(
       config,
-      "/webroot/decision/v5/api/dashboard/rename",
+      "/v5/api/dashboard/rename",
       {
         method: "POST",
         data: params,
@@ -181,7 +181,7 @@ export async function deleteDashboard(
     const config = await getConfig();
     await fineBIAuthFetch(
       config,
-      "/webroot/decision/v5/api/dashboard/delete",
+      "/v5/api/dashboard/delete",
       {
         method: "POST",
         data: params,
@@ -198,7 +198,7 @@ export async function deleteDashboard(
 
 /**
  * Get widget data for a dashboard report.
- * GET /webroot/decision/v5/api/dashboard/report/widget/data
+ * GET /v5/api/dashboard/report/widget/data
  * 
  * @param reportId The report/dashboard ID
  * @param widgetId The real widget ID
@@ -209,7 +209,7 @@ export async function getWidgetData(
 ): Promise<ToolResult<any>> {
   try {
     const config = await getConfig();
-    const url = `/webroot/decision/v5/api/dashboard/report/widget/data?reportId=${encodeURIComponent(reportId)}&widgetId=${encodeURIComponent(widgetId)}`;
+    const url = `/v5/api/dashboard/report/widget/data?reportId=${encodeURIComponent(reportId)}&widgetId=${encodeURIComponent(widgetId)}`;
     const data = await fineBIAuthFetch(config, url, {
       method: "GET",
     });

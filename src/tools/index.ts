@@ -2,7 +2,6 @@
  * Barrel re-export for all FineBI tool implementations.
  */
 
-export { login } from "./auth.js";
 export { listDatasets, queryDataset, createReport } from "./dataset.js";
 export {
   exportDashboardExcel,

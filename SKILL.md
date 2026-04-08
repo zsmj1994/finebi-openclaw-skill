@@ -87,12 +87,12 @@ entrypoint: finebi-skill
 
 
 ### `get-entry-tree`
-获取用户有权限查看的目录树。
+获取用户有权限查看的目录树,返回的json中包含id，templateId等，其中templateId是发布挂出的任务id，即publishTaskId。
 
 **参数:** 无
 
 ### `get-published-subject-resources`
-根据目录节点的 templateId（即 publishTaskId）查询挂出的分析主题挂出的资源（如组件和仪表板）。
+根据目录节点的 templateId（即 publishTaskId）查询挂出的分析主题挂出的资源（如组件id和仪表板id）。
 
 **参数:**
 - `taskId` (string, 必填): 目录节点的 templateId 或发布任务的 publishTaskId
