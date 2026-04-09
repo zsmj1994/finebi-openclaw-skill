@@ -10,12 +10,8 @@ export {
 } from "./dashboard-export.js";
 export {
   getDashboardUserInfo,
-  searchDashboards,
   getDashboardsBySubject,
   getDashboardDetail,
-  createDashboard,
-  renameDashboard,
-  deleteDashboard,
   getWidgetData,
 } from "./dashboard.js";
 export {
@@ -25,12 +21,6 @@ export {
   reportCheck,
 } from "./report.js";
 export {
-  packageList,
-  packageStructure,
-} from "./package.js";
-export {
-  dataFolders,
-  dataFolderTree,
   dataTablePreview,
   dataTableStructure,
   dataModel,

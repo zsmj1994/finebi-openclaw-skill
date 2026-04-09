@@ -119,23 +119,6 @@ export interface DashboardSummary {
   [key: string]: unknown;
 }
 
-/** Parameters for searching dashboards with pagination */
-export interface SearchDashboardsParams {
-  /** Page number (required) */
-  page: number;
-  /** Number of items per page (required) */
-  count: number;
-}
-
-/** Result of a dashboard search operation */
-export interface SearchDashboardsResult {
-  reportIndexList: Array<{
-    userInfo: Record<string, unknown>;
-    reportIndex: DashboardSummary;
-  }>;
-  totalCount: number;
-}
-
 /** Parameters for listing dashboards under a subject */
 export interface GetDashboardsBySubjectParams {
   /** Subject ID (required) */
@@ -147,28 +130,6 @@ export interface DashboardDetail {
   reportId: string;
   name: string;
   [key: string]: unknown;
-}
-
-/** Parameters for creating a new dashboard */
-export interface CreateDashboardParams {
-  /** Dashboard name (required) */
-  name: string;
-  /** Additional parameters */
-  [key: string]: unknown;
-}
-
-/** Parameters for renaming a dashboard */
-export interface RenameDashboardParams {
-  /** Dashboard ID (required) */
-  reportId: string;
-  /** New name for the dashboard (required) */
-  name: string;
-}
-
-/** Parameters for deleting a dashboard */
-export interface DeleteDashboardParams {
-  /** Dashboard ID (required) */
-  reportId: string;
 }
 
 /** Response structure for directory tree node under /view/entry/tree */

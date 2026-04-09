@@ -1,41 +1,7 @@
 import type { ToolResult } from "../types.js";
 import { getConfig, fineBIAuthFetch } from "../helpers.js";
 
-/**
- * List first-level folders.
- */
-export async function dataFolders(): Promise<ToolResult<any>> {
-  try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/folders`, {
-      method: "GET"
-    });
-    return { success: true, data: result as any };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
 
-/**
- * Get the full tree under a folder.
- */
-export async function dataFolderTree(folderId: string): Promise<ToolResult<any>> {
-  try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/folders/tree/${folderId}`, {
-      method: "GET"
-    });
-    return { success: true, data: result as any };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
 
 /**
  * Get preview data for a table.

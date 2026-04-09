@@ -11,12 +11,8 @@ import {
   exportDashboardPdf,
   exportDashboardImage,
   getDashboardUserInfo,
-  searchDashboards,
   getDashboardsBySubject,
   getDashboardDetail,
-  createDashboard,
-  renameDashboard,
-  deleteDashboard,
   getWidgetData,
   getEntryTree,
   getPublishedSubjectResources,
@@ -175,19 +171,6 @@ program
   });
 
 program
-  .command("search-dashboards")
-  .description("Search dashboards under the publish management node with pagination")
-  .requiredOption("-p, --page <number>", "Page number")
-  .requiredOption("-c, --count <number>", "Number of items per page")
-  .action(async (options) => {
-    const res = await searchDashboards({
-      page: parseInt(options.page, 10),
-      count: parseInt(options.count, 10),
-    });
-    handleResult(res);
-  });
-
-program
   .command("get-dashboards-by-subject")
   .description("Get the list of dashboards under a specific subject")
   .requiredOption("-s, --subject-id <id>", "Subject ID")
@@ -207,39 +190,6 @@ program
     handleResult(res);
   });
 
-program
-  .command("create-dashboard")
-  .description("Create a new dashboard")
-  .requiredOption("-n, --name <name>", "Dashboard name")
-  .action(async (options) => {
-    const res = await createDashboard({
-      name: options.name,
-    });
-    handleResult(res);
-  });
 
-program
-  .command("rename-dashboard")
-  .description("Rename an existing dashboard")
-  .requiredOption("-r, --report-id <id>", "Dashboard ID")
-  .requiredOption("-n, --name <name>", "New dashboard name")
-  .action(async (options) => {
-    const res = await renameDashboard({
-      reportId: options.reportId,
-      name: options.name,
-    });
-    handleResult(res);
-  });
-
-program
-  .command("delete-dashboard")
-  .description("Delete a dashboard")
-  .requiredOption("-r, --report-id <id>", "Dashboard ID")
-  .action(async (options) => {
-    const res = await deleteDashboard({
-      reportId: options.reportId,
-    });
-    handleResult(res);
-  });
 
 program.parse();
