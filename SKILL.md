@@ -17,11 +17,12 @@ metadata:
   clawdbot:
     emoji: "📊"
     requires:
-      bins: ["node"]
+      bins: ["node", "finebi-cli"]
       env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD"]
     primaryEnv: "FINEBI_BASE_URL"
+    install: "npm list -g finebi-openclaw-skill || npm install -g finebi-openclaw-skill"
 runner: cli
-entrypoint: finebi-skill
+entrypoint: finebi-cli
 ---
 
 # FineBI 技能
