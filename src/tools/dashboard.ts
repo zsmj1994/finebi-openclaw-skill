@@ -23,6 +23,7 @@ export async function getDashboardUserInfo(): Promise<ToolResult<DashboardUserIn
       "/v5/api/dashboard/user/info"
     );
     const result = response as { data: DashboardUserInfo };
+    console.log(response)
     return { success: true, data: result.data };
   } catch (error) {
     return {

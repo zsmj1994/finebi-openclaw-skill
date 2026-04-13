@@ -24,6 +24,7 @@ export async function getConfig(): Promise<FineBIConfig> {
   const baseUrl = process.env["FINEBI_BASE_URL"];
   const username = process.env["FINEBI_USERNAME"];
   const password = process.env["FINEBI_PASSWORD"];
+  const lightAuthToken = process.env["FINEBI_LIGHT_AUTH_TOKEN"];
 
   if (!baseUrl || !username || !password) {
     throw new Error(
@@ -31,7 +32,7 @@ export async function getConfig(): Promise<FineBIConfig> {
     );
   }
 
-  return { baseUrl, username, password };
+  return { baseUrl, username, password, lightAuthToken };
 }
 
 // ---------------------------------------------------------------------------
@@ -56,30 +57,6 @@ export function parseResponseData(rawData: any): any {
     }
   }
   return rawData;
-}
-
-// ---------------------------------------------------------------------------
-// Unauthenticated fetch
-// ---------------------------------------------------------------------------
-
-export async function fineBIFetch(
-  config: FineBIConfig,
-  path: string,
-  options?: { method?: "GET" | "POST" | "PUT" | "DELETE"; data?: unknown; headers?: Record<string, string> }
-): Promise<unknown> {
-  const url = `${config.baseUrl}${path}`;
-  const response = await axios({
-    url,
-    method: options?.method ?? "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-      ...options?.headers,
-    },
-    data: options?.data,
-  });
-
-  return parseResponseData(response.data);
 }
 
 // ---------------------------------------------------------------------------
@@ -126,26 +103,42 @@ export async function getToken(config: FineBIConfig, forceRefresh = false): Prom
     return cachedToken;
   }
 
-  const response = await axios.get(
-    `${config.baseUrl}/login/cross/domain`,
-    {
-      params: {
-        fine_username: config.username,
-        fine_password: config.password,
-        validity: -1,
-      },
-      responseType: "text",
-    }
-  );
-
-  console.log(response.config.params)
-
-  const data = parseResponseData(response.data) as { accessToken?: string; errorCode?: string; errorMsg?: string };
-  if (data.errorCode || !data.accessToken) {
-    throw new Error(`FineBI login failed: username : ${config.username} ${data.errorMsg ?? "unknown error"} (code: ${data.errorCode})`);
+  let response;
+  if (config.lightAuthToken) {
+    // Priority: use Light Auth Token if provided
+    response = await axios.get(
+      `${config.baseUrl}/plugin/fine-light-auth-token/login`,
+      {
+        params: {
+          "fine-light-auth-token": config.lightAuthToken,
+        },
+        responseType: "text",
+      }
+    );
+  } else {
+    // Fallback: standard login
+    response = await axios.get(
+      `${config.baseUrl}/login/cross/domain`,
+      {
+        params: {
+          fine_username: config.username,
+          fine_password: config.password,
+          validity: -1,
+        },
+        responseType: "text",
+      }
+    );
   }
 
-  cachedToken = data.accessToken;
+  const resData = parseResponseData(response.data) as { accessToken?: string; data?: string; errorCode?: string; errorMsg?: string };
+  const accessToken = config.lightAuthToken ? resData.data : resData.accessToken;
+
+  if (resData.errorCode || !accessToken) {
+    const authType = config.lightAuthToken ? "Light Auth" : `User: ${config.username}`;
+    throw new Error(`FineBI login failed (${authType}): ${resData.errorMsg ?? "unknown error"} (code: ${resData.errorCode})`);
+  }
+
+  cachedToken = accessToken;
   savePersistedToken(cachedToken);
   return cachedToken;
 }
@@ -164,7 +157,7 @@ export async function fineBIAuthFetch(
   options?: { method?: "GET" | "POST" | "PUT" | "DELETE"; data?: unknown; headers?: Record<string, string> }
 ): Promise<unknown> {
   const url = `${config.baseUrl}${path}`;
-  console.log(url);
+
   const makeRequest = async (token: string) => {
     return axios({
       url,
@@ -180,6 +173,7 @@ export async function fineBIAuthFetch(
   };
 
   let token = await getToken(config);
+  console.log(url, token);
   try {
     let response = await makeRequest(token);
     let parsedData = parseResponseData(response.data);

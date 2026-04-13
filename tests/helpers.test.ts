@@ -1,13 +1,22 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import * as fs from 'fs';
+import * as dotenv from 'dotenv';
+import axios from 'axios';
 
-// We need to mock some things before importing helpers if they run side effects
-// However, parseResponseData is a pure function, we can test it easily.
-// For functions like getConfig, we might need to mock process.env
+// Mock dependencies
+vi.mock('dotenv', () => ({
+  config: vi.fn(),
+}));
 
-import { getConfig, parseResponseData } from '../src/helpers.js';
+vi.mock('axios', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
+
+import { getConfig, parseResponseData, getToken } from '../src/helpers.js';
 
 describe('Helpers - parseResponseData', () => {
   it('should parse simple JSON strings', () => {
@@ -49,14 +58,78 @@ describe('Helpers - getConfig', () => {
     process.env.FINEBI_BASE_URL = 'http://test.com';
     process.env.FINEBI_USERNAME = 'admin';
     process.env.FINEBI_PASSWORD = 'password';
+    delete process.env.FINEBI_LIGHT_AUTH_TOKEN;
 
     const config = await getConfig();
     expect(config).toEqual({
       baseUrl: 'http://test.com',
       username: 'admin',
-      password: 'password'
+      password: 'password',
+      lightAuthToken: undefined
     });
 
     process.env = originalEnv;
+  });
+
+  it('should return config with lightAuthToken if present', async () => {
+    const originalEnv = { ...process.env };
+    process.env.FINEBI_BASE_URL = 'http://test.com';
+    process.env.FINEBI_USERNAME = 'admin';
+    process.env.FINEBI_PASSWORD = 'password';
+    process.env.FINEBI_LIGHT_AUTH_TOKEN = 'light-token-123';
+
+    const config = await getConfig();
+    expect(config).toEqual({
+      baseUrl: 'http://test.com',
+      username: 'admin',
+      password: 'password',
+      lightAuthToken: 'light-token-123'
+    });
+
+    process.env = originalEnv;
+  });
+});
+
+describe('Helpers - getToken', () => {
+  const config = {
+    baseUrl: 'http://test.com',
+    username: 'admin',
+    password: 'password'
+  };
+
+  it('should use standard login if lightAuthToken is not present', async () => {
+    vi.mocked(axios.get).mockResolvedValueOnce({
+      data: '{"accessToken": "base-token-123"}',
+      config: { params: {} }
+    } as any);
+
+    const token = await getToken(config, true);
+    
+    expect(axios.get).toHaveBeenCalledWith(
+      expect.stringContaining('/login/cross/domain'),
+      expect.objectContaining({
+        params: expect.objectContaining({ fine_username: 'admin' })
+      })
+    );
+    expect(token).toBe('base-token-123');
+  });
+
+  it('should use light auth if lightAuthToken is present', async () => {
+    const lightConfig = { ...config, lightAuthToken: 'light-123' };
+    
+    vi.mocked(axios.get).mockResolvedValueOnce({
+      data: '{"data": "light-token-456"}',
+      config: { params: {} }
+    } as any);
+
+    const token = await getToken(lightConfig, true);
+    
+    expect(axios.get).toHaveBeenCalledWith(
+      expect.stringContaining('/plugin/fine-light-auth-token/login'),
+      expect.objectContaining({
+        params: expect.objectContaining({ "fine-light-auth-token": 'light-123' })
+      })
+    );
+    expect(token).toBe('light-token-456');
   });
 });

@@ -18,7 +18,7 @@ metadata:
     emoji: "📊"
     requires:
       bins: ["node", "finebi-cli"]
-      env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD"]
+      env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD", "FINEBI_LIGHT_AUTH_TOKEN]
     primaryEnv: "FINEBI_BASE_URL"
     install: "npm list -g finebi-openclaw-skill || npm install -g finebi-openclaw-skill"
 runner: cli

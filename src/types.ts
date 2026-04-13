@@ -7,6 +7,7 @@ export interface FineBIConfig {
   baseUrl: string;
   username: string;
   password: string;
+  lightAuthToken?: string;
 }
 
 /** Known error codes from FineBI API */
