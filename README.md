@@ -18,7 +18,7 @@ npm install -g finebi-openclaw-skill
 finebi-cli init
 
 # 2. Use any command via finebi-cli
-finebi-cli search-datasets --keyword "Sales"
+finebi-cli query-dataset -k "Sales"
 ```
 
 ## Features
@@ -45,9 +45,11 @@ This plugin exposes multiple binaries: `finebi-skill`, `finebi-cli`, and `finebi
 | Command | Description |
 | :--- | :--- |
 | `install` | **Interactive setup** for FineBI credentials |
-| `search-datasets` | Search datasets by keyword |
-| `preview-dataset-data` | Preview dataset data (up to 100,000 rows) |
-| `get-dataset-info` | Get a FineBI dataset info by tableName |
+| `subject-groups-search` | Search across all subjects and folders |
+| `search-my-dashboards` | Search dashboards in My Analysis |
+| `get-publick-datasets-list` | Get a list of public datasets |
+| `query-dataset` | Query public datasets by keyword |
+| `preview-dataset-data` | Preview dataset data and fields |
 | `export-dashboard-excel` | Export a dashboard to Excel |
 | `export-dashboard-pdf` | Export a dashboard to PDF |
 | `export-dashboard-image` | Export a dashboard to PNG |

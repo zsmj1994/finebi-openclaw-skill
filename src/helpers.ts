@@ -38,7 +38,7 @@ export async function getConfig(): Promise<FineBIConfig> {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseResponseData(rawData: any): any {
+export function parseResponseData(rawData: any): any {
   if (typeof rawData === "string") {
     rawData = rawData.trim();
     const match = rawData.match(/^callback\((.*)\)$/sm) || rawData.match(/^jsonp_\d+\((.*)\)$/sm);

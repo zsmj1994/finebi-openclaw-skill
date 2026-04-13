@@ -33,27 +33,50 @@ entrypoint: finebi-cli
 
 ## 工具列表
 
-### `get-dataset-info`
-通过名称查询 FineBI 数据集信息。
+### `init`
+交互式配置 FineBI 连接（通常终端交互使用）。
+
+**参数:** 无
+
+### `subject-groups-search`
+根据关键字搜索主题和文件夹。
 
 **参数:**
-- `dataset` (string, 必填): 要查询的数据集名称
-- `filters` (object, 选填): 用于过滤的键值对
+- `keyword` (string, 选填):搜索关键字
+- `pageIndex` (number, 选填): 分页索引，默认为 1
+- `searchType` (number, 选填): 搜索类型，默认为 3
+- `filterType` (number, 选填): 过滤类型，默认为 1
+
+### `search-my-dashboards`
+搜索“我的分析”中的仪表板。
+
+**参数:**
+- `keyword` (string, 选填): 搜索关键字
+- `pageIndex` (number, 选填): 分页索引，默认为 1
+
+### `get-publick-datasets-list`
+获取公共数据集列表。
+
+**参数:**
+- `pageIndex` (number, 选填): 分页索引，默认为 1
+- `pageSize` (number, 选填): 每页数据量，默认为 150
+
+### `query-dataset`
+通过关键字查询/搜索公共数据集。
+
+**参数:**
+- `keyword` (string, 选填): 搜索关键字
+- `pageIndex` (number, 选填): 分页索引，默认为 1
+- `pageSize` (number, 选填): 每页数据量，默认为 150
 
 ### `preview-dataset-data`
-获取数据集的数据预览（限制最大不超过 10w 条数据）。
+获取数据集表的字段列表和数据预览。
 
 **参数:**
-- `dataset` (string, 必填): 数据表的原始名称
-- `page` (number, 选填): 页码，默认为 1
-- `size` (number, 选填): 每页数据量，最大支持 100000，默认为 100
-
-### `search-datasets`
-根据关键字分⻚搜索 FineBI 数据集。
-
-**参数:**
-- `keyword` (string, 必填): 要搜索的关键字
-- `page` (number, 选填): 页码，默认为 1
+- `tableName` (string, 必填): 数据集表 ID
+- `keyword` (string, 选填): 过滤字段的关键字
+- `limit` (number, 选填): 提取记录数，默认为 5000
+- `pageIndex` (number, 选填): 页码，默认为 1
 
 ### `export-dashboard-excel`
 将仪表板导出为 Excel 格式。
@@ -109,7 +132,7 @@ entrypoint: finebi-cli
 
 ### 使用/获取数据集数据
 如果需要提取某个表的数据，标准的工作流程是：
-1. **第一步**：先使用 `search-datasets` 命令，根据表名查到表信息，在返回结果中获取对应表的 ID（通常为 `name` 字段，即表的原始名称）。
+1. **第一步**：先使用 `query-dataset` 命令，查到表信息，在返回结果中获取对应表的 ID（通常为 `name` 字段，即表的原始名称/ID）。
 2. **第二步**：调用 `preview-dataset-data` 命令，传入查到的 ID，从而获取该数据集的具体数据记录。
 
 ### 导出 FineBI 仪表板为 PDF，然后分析导出的 PDF 文件生成报告 ⚠️
@@ -126,55 +149,6 @@ entrypoint: finebi-cli
 
 
 ## 迁移的工具列表 (Migrated Tools)
-
-### `report-list`
-Migrated tool: reportList
-
-**参数:**
-- `subjectId`: 必填
-
-### `report-info`
-Migrated tool: reportInfo
-
-**参数:**
-- `reportIds`: 必填
-
-### `report-consanguinity`
-Migrated tool: reportConsanguinity
-
-**参数:**
-- `reportId`: 必填
-
-### `report-check`
-Migrated tool: reportCheck
-
-**参数:**
-- 无
-
-### `package-list`
-Migrated tool: packageList
-
-**参数:**
-- 无
-
-### `package-structure`
-Migrated tool: packageStructure
-
-**参数:**
-- `packId`: 必填
-- `withTables`: 必填
-
-### `data-folders`
-Migrated tool: dataFolders
-
-**参数:**
-- 无
-
-### `data-folder-tree`
-Migrated tool: dataFolderTree
-
-**参数:**
-- `folderId`: 必填
 
 ### `data-table-preview`
 Migrated tool: dataTablePreview

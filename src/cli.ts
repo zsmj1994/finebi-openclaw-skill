@@ -4,18 +4,21 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import {
-  listDatasets,
   queryDataset,
-  createReport,
+  previewDatasetData,
+  getPublickDatasetsList,
   exportDashboardExcel,
   exportDashboardPdf,
   exportDashboardImage,
   getDashboardUserInfo,
   getDashboardsBySubject,
-  getDashboardDetail,
   getWidgetData,
   getEntryTree,
   getPublishedSubjectResources,
+  subjectGroupsSearch,
+  getDashboardStyle,
+  setDashboardStyle,
+  getDashboardDesignConfigure,
 } from "./tools/index.js";
 import { runInit } from "./init.js";
 
@@ -75,30 +78,80 @@ program
     handleResult(res);
   });
 
+
 program
-  .command("list-datasets")
-  .description("List all available FineBI datasets")
-  .action(async () => {
-    const res = await listDatasets();
+  .command("search-my-datasets")
+  .description("Search datasets in My Analysis")
+  .option("-k, --keyword <keyword>", "Keyword to search", "")
+  .option("-p, --page-index <number>", "Page index", "1")
+  .option("-s, --search-type <number>", "Search type", "3")
+  .option("-f, --filter-type <number>", "Filter type", "1")
+  .action(async (options) => {
+    const res = await subjectGroupsSearch({
+      keyword: options.keyword,
+      pageIndex: parseInt(options.pageIndex, 10),
+      searchType: parseInt(options.searchType, 10),
+      filterType: parseInt(options.filterType, 10),
+    });
+    handleResult(res);
+  });
+
+program
+  .command("search-my-dashboards")
+  .description("Search dashboards in My Analysis")
+  .option("-k, --keyword <keyword>", "Keyword to search", "")
+  .option("-p, --page-index <number>", "Page index", "1")
+  .action(async (options) => {
+    const res = await subjectGroupsSearch({
+      keyword: options.keyword,
+      pageIndex: parseInt(options.pageIndex, 10),
+      searchType: 5,
+    });
+    handleResult(res);
+  });
+
+program
+  .command("get-publick-datasets-list")
+  .description("Get a list of public datasets")
+  .option("-p, --page-index <number>", "Page index", "1")
+  .option("-s, --page-size <number>", "Page size", "150")
+  .action(async (options) => {
+    const res = await getPublickDatasetsList({
+      pageIndex: parseInt(options.pageIndex, 10),
+      pageSize: parseInt(options.pageSize, 10),
+    });
     handleResult(res);
   });
 
 program
   .command("query-dataset")
-  .description("Query a FineBI dataset")
-  .requiredOption("-d, --dataset <name>", "Name of the dataset")
-  .option("-f, --filters <json>", "JSON string of key-value filters to apply")
+  .description("Query a FineBI dataset by keyword")
+  .option("-k, --keyword <keyword>", "Keyword to search")
+  .option("-p, --page-index <number>", "Page index", "1")
+  .option("-s, --page-size <number>", "Page size", "150")
   .action(async (options) => {
-    let filters;
-    if (options.filters) {
-      try {
-        filters = JSON.parse(options.filters);
-      } catch (e) {
-        console.error("Invalid JSON format for filters");
-        process.exit(1);
-      }
-    }
-    const res = await queryDataset(options.dataset, filters);
+    const res = await queryDataset({
+      keyword: options.keyword,
+      pageIndex: parseInt(options.pageIndex, 10),
+      pageSize: parseInt(options.pageSize, 10),
+    });
+    handleResult(res);
+  });
+
+program
+  .command("preview-dataset-data")
+  .description("Get fields and preview data for a specific dataset table")
+  .requiredOption("-t, --table-name <id>", "Dataset table ID")
+  .option("-k, --keyword <keyword>", "Keyword for filtering fields", "")
+  .option("-l, --limit <number>", "Number of records to fetch", "5000")
+  .option("-p, --page-index <number>", "Page index", "1")
+  .action(async (options) => {
+    const res = await previewDatasetData({
+      tableName: options.tableName,
+      keyword: options.keyword,
+      limit: parseInt(options.limit, 10),
+      pageIndex: parseInt(options.pageIndex, 10),
+    });
     handleResult(res);
   });
 
@@ -112,20 +165,7 @@ program
     handleResult(res);
   });
 
-program
-  .command("create-report")
-  .description("Create a new FineBI report")
-  .requiredOption("-t, --title <title>", "Report title")
-  .requiredOption("-d, --dataset <name>", "Source dataset name")
-  .option("-c, --chart-type <type>", "Type of chart (bar, line, pie, table)", "bar")
-  .action(async (options) => {
-    const res = await createReport({
-      title: options.title,
-      dataset: options.dataset,
-      chartType: options.chartType as "bar" | "line" | "pie" | "table",
-    });
-    handleResult(res);
-  });
+
 
 program
   .command("export-dashboard-excel")
@@ -181,15 +221,42 @@ program
     handleResult(res);
   });
 
+
+
+
 program
-  .command("get-dashboard-detail")
-  .description("Get detailed information about a specific dashboard")
-  .requiredOption("-r, --report-id <id>", "Dashboard ID")
+  .command("get-dashboard-style")
+  .description("Get dashboard style configuration")
+  .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
   .action(async (options) => {
-    const res = await getDashboardDetail(options.reportId);
+    const res = await getDashboardStyle(options.dashboardId);
     handleResult(res);
   });
 
+program
+  .command("get-dashboard-design-configure")
+  .description("获取仪表板详细配置信息")
+  .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
+  .action(async (options) => {
+    const res = await getDashboardDesignConfigure(options.dashboardId);
+    handleResult(res);
+  });
 
+program
+  .command("set-dashboard-style")
+  .description("Set dashboard style configuration")
+  .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
+  .requiredOption("-p, --payload <json>", "Style payload as JSON string")
+  .action(async (options) => {
+    let payload;
+    try {
+      payload = JSON.parse(options.payload);
+    } catch (e) {
+      console.error("Error: payload must be a valid JSON string");
+      process.exit(1);
+    }
+    const res = await setDashboardStyle(options.dashboardId, payload);
+    handleResult(res);
+  });
 
 program.parse();

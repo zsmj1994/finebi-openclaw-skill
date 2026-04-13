@@ -1,61 +1,50 @@
 /**
  * Dataset and report tools for FineBI.
  */
+import { randomUUID } from "node:crypto";
 
 import type {
   Dataset,
   QueryResult,
-  CreateReportParams,
-  Report,
   ToolResult,
   DataRow,
 } from "../types.js";
-import { getConfig, fineBIFetch } from "../helpers.js";
+import { getConfig, fineBIAuthFetch } from "../helpers.js";
+
+
 
 /**
- * List all available FineBI datasets.
- */
-export async function listDatasets(): Promise<ToolResult<Dataset[]>> {
-  try {
-    const config = await getConfig();
-    const data = await fineBIFetch(config, "/api/dataset");
-    const datasets = data as Dataset[];
-    return { success: true, data: datasets };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
-
-/**
- * Query a FineBI dataset by name with optional filters.
+ * Query/search for public datasets by keyword.
  *
- * @param dataset - Name of the dataset to query
- * @param filters - Optional key-value filters to apply
+ * @param params - Contains keyword, pageIndex, pageSize
  */
-export async function queryDataset(
-  dataset: string,
-  filters?: Record<string, string | number>
-): Promise<ToolResult<QueryResult>> {
+export async function queryDataset(params: {
+  keyword?: string;
+  pageIndex?: number;
+  pageSize?: number;
+} = {}): Promise<ToolResult<any>> {
   try {
     const config = await getConfig();
-    const body: Record<string, unknown> = { dataset };
-    if (filters && Object.keys(filters).length > 0) {
-      body["filters"] = filters;
+    const body: Record<string, any> = {
+      filter: {
+        itemTypes: [3],
+      },
+      sort: 0,
+      privilege: "use",
+      pageIndex: params.pageIndex || 1,
+      pageSize: params.pageSize || 150,
+    };
+
+    if (params.keyword) {
+      body.keyword = params.keyword;
     }
 
-    const data = await fineBIFetch(config, "/api/dataset/query", {
+    const data = await fineBIAuthFetch(config, "/v5/conf/packages/search", {
       method: "POST",
       data: body,
     });
 
-    const result = data as { rows: DataRow[]; total: number };
-    return {
-      success: true,
-      data: { dataset, rows: result.rows, total: result.total },
-    };
+    return { success: true, data };
   } catch (error) {
     return {
       success: false,
@@ -65,22 +54,71 @@ export async function queryDataset(
 }
 
 /**
- * Create a new FineBI report from a dataset.
+ * 预览数据数据集数据.
  *
- * @param params - Report creation parameters
+ * @param params - Contains tableName, pageIndex, limit, keyword
  */
-export async function createReport(params: CreateReportParams): Promise<ToolResult<Report>> {
+export async function previewDatasetData(params: {
+  tableName: string;
+  keyword?: string;
+  limit?: number;
+  pageIndex?: number;
+}): Promise<ToolResult<any>> {
   try {
     const config = await getConfig();
-    const { title, dataset, chartType = "bar" } = params;
+    const taskId = randomUUID();
+    const body = {
+      keyword: params.keyword || "",
+      limit: params.limit || 5000,
+      pageIndex: params.pageIndex || 1,
+      tableName: params.tableName,
+    };
 
-    const data = await fineBIFetch(config, "/api/report", {
+    const data = await fineBIAuthFetch(
+      config,
+      `/v5/conf/tables/fields/page?taskId=${taskId}`,
+      {
+        method: "POST",
+        data: body,
+      }
+    );
+
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+/**
+ * 获取公共数据的数据集列表
+ *
+ * @param params - Contains pageIndex, pageSize
+ */
+export async function getPublickDatasetsList(params: {
+  pageIndex?: number;
+  pageSize?: number;
+} = {}): Promise<ToolResult<any>> {
+  try {
+    const config = await getConfig();
+    const body = {
+      filter: {
+        itemTypes: [3],
+      },
+      sort: 0,
+      privilege: "use",
+      pageIndex: params.pageIndex || 1,
+      pageSize: params.pageSize || 150,
+    };
+
+    const data = await fineBIAuthFetch(config, "/v5/conf/packages/list", {
       method: "POST",
-      data: { title, dataset, chartType },
+      data: body,
     });
 
-    const report = data as Report;
-    return { success: true, data: report };
+    return { success: true, data };
   } catch (error) {
     return {
       success: false,

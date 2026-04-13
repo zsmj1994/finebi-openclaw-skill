@@ -1,4 +1,4 @@
-import type { ToolResult, PublishedSubjectResource } from "../types.js";
+import type { ToolResult, PublishedSubjectResource, SubjectEditSession } from "../types.js";
 import { getConfig, fineBIAuthFetch } from "../helpers.js";
 
 /**
@@ -202,5 +202,30 @@ export async function getPublishedSubjectResources(publishTaskId: string): Promi
     return { success: true, data };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Enter a subject edit session.
+ * GET /v5/cache/subjects/{subjectId}/enter
+ * 
+ * @param subjectId The subject ID
+ * @returns The subject edit session info
+ */
+export async function enterSubjectEdit(subjectId: string): Promise<ToolResult<SubjectEditSession>> {
+  try {
+    const config = await getConfig();
+    const url = `/v5/cache/subjects/${encodeURIComponent(subjectId)}/enter`;
+    const response = await fineBIAuthFetch(config, url, {
+      method: "GET"
+    }) as any;
+    // Handle structure where data is nested or at root
+    const data = response.data || response;
+    return { success: true, data: data as SubjectEditSession };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }

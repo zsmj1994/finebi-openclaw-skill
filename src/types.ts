@@ -35,24 +35,6 @@ export interface QueryResult {
   total: number;
 }
 
-/** Supported chart types for report creation */
-export type ChartType = "bar" | "line" | "pie" | "table";
-
-/** Parameters for creating a FineBI report */
-export interface CreateReportParams {
-  title: string;
-  dataset: string;
-  chartType?: ChartType;
-}
-
-/** A FineBI report */
-export interface Report {
-  id: string;
-  title: string;
-  dataset: string;
-  chartType: ChartType;
-  createdAt: string;
-}
 
 /** Result of a successful login */
 export interface LoginResult {
@@ -125,12 +107,6 @@ export interface GetDashboardsBySubjectParams {
   subjectId: string;
 }
 
-/** Dashboard detail information */
-export interface DashboardDetail {
-  reportId: string;
-  name: string;
-  [key: string]: unknown;
-}
 
 /** Response structure for directory tree node under /view/entry/tree */
 export interface EntryTreeNode {
@@ -166,5 +142,77 @@ export interface PublishedSubjectResource {
   id: string;
   name: string;
   resourceList: PublishedResourceItem[];
+  [key: string]: any;
+}
+
+/** Response structure for entering a subject edit session */
+export interface SubjectEditSession {
+  subjectEditSessionId: string;
+  editKeyId: string;
+  firstEnterSubjectEditSession: boolean;
+  [key: string]: any;
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard style types
+// ---------------------------------------------------------------------------
+
+export type Obj = Record<string, any>;
+export type TemplateChart = Record<string, any>;
+export type StyleTabType = string | number;
+
+/** Configuration structure for dashboard styles */
+export interface TemplateDetailStyle {
+  id: string;
+  name: string;
+  /** 主题 */
+  theme: string;
+  styleThemeColor: string;
+  table: {
+    themeColor: string;
+    tableStyle: number;
+    font: Obj;
+  };
+  chart: TemplateChart;
+  controlTheme: string;
+  controlWidget: Obj;
+  /** 仪表板背景 */
+  templateBackground: { type: string; color?: string; imageId?: string };
+  /** 标题背景 */
+  titleBackground: { type: string; color?: string; imageId?: string };
+  /** 标题字体 */
+  titleFont: Obj;
+  /** 组件背景 */
+  widgetBackground: {
+    type: string;
+    color?: string;
+    imageId?: string;
+    borderColor: string;
+    borderRadius: number;
+    borderSize: number;
+  };
+  /** 图片组件背景 */
+  imageWidgetBackground: {
+    type: string;
+    color?: string;
+    imageId?: string;
+    borderColor: string;
+    borderRadius: number;
+    borderSize: number;
+  };
+  /** 组件间距 */
+  widgetGap?: number;
+  currentStyleTab: StyleTabType;
+  initTime: number;
+  /** 悬浮阴影 */
+  hoverShadow: boolean;
+}
+
+export interface DashboardStyleData {
+  basePool: TemplateDetailStyle | string;
+  designConfigure: any | string;
+  sessionId: string;
+  subjectId: string;
+  title: string;
   [key: string]: any;
 }

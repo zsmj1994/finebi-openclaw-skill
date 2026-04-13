@@ -2,7 +2,7 @@
  * Barrel re-export for all FineBI tool implementations.
  */
 
-export { listDatasets, queryDataset, createReport } from "./dataset.js";
+export { queryDataset, previewDatasetData, getPublickDatasetsList } from "./dataset.js";
 export {
   exportDashboardExcel,
   exportDashboardPdf,
@@ -11,15 +11,12 @@ export {
 export {
   getDashboardUserInfo,
   getDashboardsBySubject,
-  getDashboardDetail,
   getWidgetData,
+  getDashboardDesignConfigure,
+  getDashboardStyle,
+  setDashboardStyle,
 } from "./dashboard.js";
-export {
-  reportList,
-  reportInfo,
-  reportConsanguinity,
-  reportCheck,
-} from "./report.js";
+
 export {
   dataTablePreview,
   dataTableStructure,
@@ -44,6 +41,7 @@ export {
   subjectGroupsSearch,
   subjectConsanguinity,
   getPublishedSubjectResources,
+  enterSubjectEdit,
 } from "./subject.js";
 export { getEntryTree } from "./entry.js";
 
