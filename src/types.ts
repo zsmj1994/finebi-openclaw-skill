@@ -5,8 +5,8 @@
 /** Configuration for connecting to a FineBI instance */
 export interface FineBIConfig {
   baseUrl: string;
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
   lightAuthToken?: string;
 }
 
