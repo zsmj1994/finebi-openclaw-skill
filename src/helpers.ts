@@ -26,9 +26,9 @@ export async function getConfig(): Promise<FineBIConfig> {
   const password = process.env["FINEBI_PASSWORD"];
   const lightAuthToken = process.env["FINEBI_LIGHT_AUTH_TOKEN"];
 
-  if (!baseUrl || ((!username && !password) || !lightAuthToken)) {
+  if (!baseUrl || ((!username || !password) && !lightAuthToken)) {
     throw new Error(
-      "Missing required environment variables: FINEBI_BASE_URL, (FINEBI_USERNAME and FINEBI_PASSWORD) or FINEBI_LIGHT_AUTH_TOKEN"
+      "Missing required environment variables: FINEBI_BASE_URL, and either (FINEBI_USERNAME + FINEBI_PASSWORD) or FINEBI_LIGHT_AUTH_TOKEN"
     );
   }
 
