@@ -16,7 +16,12 @@ vi.mock('axios', () => ({
   },
 }));
 
-import { getConfig, parseResponseData, getToken } from '../src/helpers.js';
+import { getConfig, parseResponseData, getToken, resetConfigCache } from '../src/helpers.js';
+import { beforeEach as beforeEachGlobal } from 'vitest';
+
+beforeEachGlobal(() => {
+  resetConfigCache();
+});
 
 describe('Helpers - parseResponseData', () => {
   it('should parse simple JSON strings', () => {

@@ -9,9 +9,7 @@ import type {
   ToolResult,
   DataRow,
 } from "../types.js";
-import { getConfig, fineBIAuthFetch } from "../helpers.js";
-
-
+import { fineBIAuthFetch } from "../helpers.js";
 
 /**
  * Query/search for public datasets by keyword.
@@ -24,7 +22,6 @@ export async function queryDataset(params: {
   pageSize?: number;
 } = {}): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
     const body: Record<string, any> = {
       filter: {
         itemTypes: [3],
@@ -39,7 +36,7 @@ export async function queryDataset(params: {
       body.keyword = params.keyword;
     }
 
-    const data = await fineBIAuthFetch(config, "/v5/conf/packages/search", {
+    const data = await fineBIAuthFetch("/v5/conf/packages/search", {
       method: "POST",
       data: body,
     });
@@ -65,7 +62,6 @@ export async function previewDatasetData(params: {
   pageIndex?: number;
 }): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
     const taskId = randomUUID();
     const body = {
       keyword: params.keyword || "",
@@ -75,7 +71,6 @@ export async function previewDatasetData(params: {
     };
 
     const data = await fineBIAuthFetch(
-      config,
       `/v5/conf/tables/fields/page?taskId=${taskId}`,
       {
         method: "POST",
@@ -102,7 +97,6 @@ export async function getPublickDatasetsList(params: {
   pageSize?: number;
 } = {}): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
     const body = {
       filter: {
         itemTypes: [3],
@@ -113,7 +107,7 @@ export async function getPublickDatasetsList(params: {
       pageSize: params.pageSize || 150,
     };
 
-    const data = await fineBIAuthFetch(config, "/v5/conf/packages/list", {
+    const data = await fineBIAuthFetch("/v5/conf/packages/list", {
       method: "POST",
       data: body,
     });

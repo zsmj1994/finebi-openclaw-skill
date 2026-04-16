@@ -1,13 +1,12 @@
 import type { ToolResult, PublishedSubjectResource, SubjectEditSession } from "../types.js";
-import { getConfig, fineBIAuthFetch } from "../helpers.js";
+import { fineBIAuthFetch } from "../helpers.js";
 
 /**
  * Get first-level folders in 'My Analysis' (GET /subjects/first/folders).
  */
 export async function subjectFolders(): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/first/folders`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/first/folders`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -24,8 +23,7 @@ export async function subjectFolders(): Promise<ToolResult<any>> {
  */
 export async function subjectTreeRoot(): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/tree`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/tree`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -42,8 +40,7 @@ export async function subjectTreeRoot(): Promise<ToolResult<any>> {
  */
 export async function subjectFolder(folderId: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/folders/${folderId}`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/folders/${folderId}`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -60,8 +57,7 @@ export async function subjectFolder(folderId: string): Promise<ToolResult<any>> 
  */
 export async function subjectTree(folderId: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/folders/tree/${folderId}`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/folders/tree/${folderId}`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -78,8 +74,7 @@ export async function subjectTree(folderId: string): Promise<ToolResult<any>> {
  */
 export async function subjectContent(subjectId: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/${subjectId}`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/${subjectId}`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -96,8 +91,7 @@ export async function subjectContent(subjectId: string): Promise<ToolResult<any>
  */
 export async function subjectReports(subjectId: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/${subjectId}/reports`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/${subjectId}/reports`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -114,8 +108,7 @@ export async function subjectReports(subjectId: string): Promise<ToolResult<any>
  */
 export async function subjectGet(subjectIds: string[]): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/get`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/get`, {
       method: "POST",
       data: { subjectIds }
     });
@@ -133,8 +126,7 @@ export async function subjectGet(subjectIds: string[]): Promise<ToolResult<any>>
  */
 export async function subjectSearch(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/search`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/search`, {
       method: "POST",
       data: body
     });
@@ -152,8 +144,7 @@ export async function subjectSearch(body: any): Promise<ToolResult<any>> {
  */
 export async function subjectGroupsSearch(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/groups/search`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/groups/search`, {
       method: "POST",
       data: body
     });
@@ -171,8 +162,7 @@ export async function subjectGroupsSearch(body: any): Promise<ToolResult<any>> {
  */
 export async function subjectConsanguinity(subjectId: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/conf/subjects/consanguinity/${subjectId}`, {
+    const result = await fineBIAuthFetch(`/v5/conf/subjects/consanguinity/${subjectId}`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -193,9 +183,8 @@ export async function subjectConsanguinity(subjectId: string): Promise<ToolResul
  */
 export async function getPublishedSubjectResources(publishTaskId: string): Promise<ToolResult<PublishedSubjectResource>> {
   try {
-    const config = await getConfig();
     const url = "/v5/conf/publish/subjects/publish/resource";
-    const data = await fineBIAuthFetch(config, url, {
+    const data = await fineBIAuthFetch(url, {
       method: "POST",
       data: { publishTaskId },
     }) as PublishedSubjectResource;
@@ -214,9 +203,8 @@ export async function getPublishedSubjectResources(publishTaskId: string): Promi
  */
 export async function enterSubjectEdit(subjectId: string): Promise<ToolResult<SubjectEditSession>> {
   try {
-    const config = await getConfig();
     const url = `/v5/cache/subjects/${encodeURIComponent(subjectId)}/enter`;
-    const response = await fineBIAuthFetch(config, url, {
+    const response = await fineBIAuthFetch(url, {
       method: "GET"
     }) as any;
     // Handle structure where data is nested or at root

@@ -9,7 +9,7 @@ import type {
   ToolResult,
   DashboardStyleData,
 } from "../types.js";
-import { getConfig, fineBIAuthFetch } from "../helpers.js";
+import { fineBIAuthFetch } from "../helpers.js";
 import { enterSubjectEdit } from "./subject.js";
 
 /**
@@ -17,9 +17,7 @@ import { enterSubjectEdit } from "./subject.js";
  */
 export async function getDashboardUserInfo(): Promise<ToolResult<DashboardUserInfo>> {
   try {
-    const config = await getConfig();
     const response = await fineBIAuthFetch(
-      config,
       "/v5/api/dashboard/user/info"
     );
     const result = response as { data: DashboardUserInfo };
@@ -42,10 +40,8 @@ export async function getDashboardsBySubject(
   params: GetDashboardsBySubjectParams
 ): Promise<ToolResult<DashboardSummary[]>> {
   try {
-    const config = await getConfig();
     const query = new URLSearchParams({ subjectId: params.subjectId });
     const response = await fineBIAuthFetch(
-      config,
       `/v5/api/platform/dashboard/list?${query.toString()}`
     );
     const result = response as { data: DashboardSummary[] };
@@ -72,9 +68,8 @@ export async function getWidgetData(
   widgetId: string
 ): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
     const url = `/v5/api/dashboard/report/widget/data?reportId=${encodeURIComponent(reportId)}&widgetId=${encodeURIComponent(widgetId)}`;
-    const data = await fineBIAuthFetch(config, url, {
+    const data = await fineBIAuthFetch(url, {
       method: "GET",
     });
     return { success: true, data };
@@ -96,9 +91,8 @@ export async function getDashboardDesignConfigure(
   dashboardId: string
 ): Promise<ToolResult<DashboardStyleData>> {
   try {
-    const config = await getConfig();
     const url = `/v5/design/report/pool/${encodeURIComponent(dashboardId)}/param`;
-    const response = await fineBIAuthFetch(config, url, { method: "GET" }) as { data: DashboardStyleData };
+    const response = await fineBIAuthFetch(url, { method: "GET" }) as { data: DashboardStyleData };
 
     const data = response.data;
     if (data && typeof data.basePool === "string") {
@@ -175,9 +169,8 @@ export async function setDashboardStyle(
 
     const payload = { ...fullConfig.designConfigure };
 
-    const config = await getConfig();
     const url = `/v5/cache/report/save?reportId=${encodeURIComponent(dashboardId)}`;
-    const response = await fineBIAuthFetch(config, url, {
+    const response = await fineBIAuthFetch(url, {
       method: "POST",
       data: payload,
       headers: {

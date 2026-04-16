@@ -9,7 +9,7 @@ import type {
   ExportResult,
   ToolResult,
 } from "../types.js";
-import { getConfig, fineBIAuthDownload } from "../helpers.js";
+import { fineBIAuthDownload } from "../helpers.js";
 
 /**
  * Export a dashboard to Excel format.
@@ -20,13 +20,12 @@ export async function exportDashboardExcel(
   params: ExportDashboardExcelParams
 ): Promise<ToolResult<ExportResult>> {
   try {
-    const config = await getConfig();
     const query = new URLSearchParams({ reportId: params.reportId });
     if (params.widgetId) {
       query.set("widgetId", params.widgetId);
     }
     const path = `/v5/api/dashboard/report/export/excel?${query.toString()}`;
-    const result = await fineBIAuthDownload(config, path);
+    const result = await fineBIAuthDownload(path);
     return { success: true, data: result };
   } catch (error) {
     return {
@@ -45,10 +44,9 @@ export async function exportDashboardPdf(
   params: ExportDashboardPdfParams
 ): Promise<ToolResult<ExportResult>> {
   try {
-    const config = await getConfig();
     const query = new URLSearchParams({ reportId: params.reportId });
     const path = `/v5/api/dashboard/report/export/pdf?${query.toString()}`;
-    const result = await fineBIAuthDownload(config, path);
+    const result = await fineBIAuthDownload(path);
     return { success: true, data: result };
   } catch (error) {
     return {
@@ -67,10 +65,9 @@ export async function exportDashboardImage(
   params: ExportDashboardImageParams
 ): Promise<ToolResult<ExportResult>> {
   try {
-    const config = await getConfig();
     const query = new URLSearchParams({ reportId: params.reportId });
     const path = `/v5/api/dashboard/report/export/png?${query.toString()}`;
-    const result = await fineBIAuthDownload(config, path);
+    const result = await fineBIAuthDownload(path);
     return { success: true, data: result };
   } catch (error) {
     return {

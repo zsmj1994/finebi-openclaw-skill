@@ -1,6 +1,6 @@
 {
   "name": "finebi-openclaw-skill",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "A FineBI plugin for OpenClaw providing advanced data analysis, visualization and reporting skills.",
   "type": "module",
   "main": "dist/index.js",

@@ -51,7 +51,6 @@ describe('Dashboard Tools - setDashboardStyle', () => {
 
     // Verify fineBIAuthFetch was called to get current config
     expect(fineBIAuthFetch).toHaveBeenCalledWith(
-      expect.anything(),
       expect.stringContaining('/pool/'),
       expect.objectContaining({ method: 'GET' })
     );
@@ -61,7 +60,6 @@ describe('Dashboard Tools - setDashboardStyle', () => {
 
     // Verify fineBIAuthFetch was called to save with correct headers
     expect(fineBIAuthFetch).toHaveBeenLastCalledWith(
-      expect.anything(),
       expect.stringContaining('/cache/report/save'),
       expect.objectContaining({
         method: 'POST',

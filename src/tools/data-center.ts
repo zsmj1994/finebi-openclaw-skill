@@ -1,15 +1,12 @@
 import type { ToolResult } from "../types.js";
-import { getConfig, fineBIAuthFetch } from "../helpers.js";
-
-
+import { fineBIAuthFetch } from "../helpers.js";
 
 /**
  * Get preview data for a table.
  */
 export async function dataTablePreview(tableName: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/tables/${encodeURIComponent(tableName)}/data`, {
+    const result = await fineBIAuthFetch(`/v5/api/tables/${encodeURIComponent(tableName)}/data`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -26,8 +23,7 @@ export async function dataTablePreview(tableName: string): Promise<ToolResult<an
  */
 export async function dataTableStructure(tableName: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/tables/${encodeURIComponent(tableName)}/structure`, {
+    const result = await fineBIAuthFetch(`/v5/api/tables/${encodeURIComponent(tableName)}/structure`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -44,8 +40,7 @@ export async function dataTableStructure(tableName: string): Promise<ToolResult<
  */
 export async function dataModel(modelId: string): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/model/${modelId}/structure`, {
+    const result = await fineBIAuthFetch(`/v5/api/model/${modelId}/structure`, {
       method: "GET"
     });
     return { success: true, data: result as any };
@@ -62,8 +57,7 @@ export async function dataModel(modelId: string): Promise<ToolResult<any>> {
  */
 export async function dataQuery(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/data/model`, {
+    const result = await fineBIAuthFetch(`/v5/api/data/model`, {
       method: "POST",
       data: body
     });
@@ -81,8 +75,7 @@ export async function dataQuery(body: any): Promise<ToolResult<any>> {
  */
 export async function dataPreview(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/preview/page`, {
+    const result = await fineBIAuthFetch(`/v5/api/preview/page`, {
       method: "POST",
       data: body
     });
@@ -100,8 +93,7 @@ export async function dataPreview(body: any): Promise<ToolResult<any>> {
  */
 export async function dataSearchTables(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/folders/table/search`, {
+    const result = await fineBIAuthFetch(`/v5/api/folders/table/search`, {
       method: "POST",
       data: body
     });
@@ -119,8 +111,7 @@ export async function dataSearchTables(body: any): Promise<ToolResult<any>> {
  */
 export async function dataSearchFields(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/folders/field/search`, {
+    const result = await fineBIAuthFetch(`/v5/api/folders/field/search`, {
       method: "POST",
       data: body
     });
@@ -138,8 +129,7 @@ export async function dataSearchFields(body: any): Promise<ToolResult<any>> {
  */
 export async function dataFieldData(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/field/data`, {
+    const result = await fineBIAuthFetch(`/v5/api/field/data`, {
       method: "POST",
       data: body
     });
@@ -157,8 +147,7 @@ export async function dataFieldData(body: any): Promise<ToolResult<any>> {
  */
 export async function dataFieldRange(body: any): Promise<ToolResult<any>> {
   try {
-    const config = await getConfig();
-    const result = await fineBIAuthFetch(config, `/v5/api/field/range`, {
+    const result = await fineBIAuthFetch(`/v5/api/field/range`, {
       method: "POST",
       data: body
     });

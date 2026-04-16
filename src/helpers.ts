@@ -3,17 +3,31 @@
  */
 
 import axios from "axios";
-import { type FineBIConfig, type ExportResult, FineBIErrorCode } from "./types.js";
-
 import * as dotenv from "dotenv";
-
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import { fileURLToPath } from "url";
+import { type FineBIConfig, type ExportResult, FineBIErrorCode } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
 
+let cachedConfig: FineBIConfig | null = null;
+
+/**
+ * Clear the cached configuration.
+ */
+export function resetConfigCache() {
+  cachedConfig = null;
+}
+
 export async function getConfig(): Promise<FineBIConfig> {
+  if (cachedConfig) {
+    return cachedConfig;
+  }
+
   // Load from the project root .env
   if (import.meta.url) {
     const __filename = fileURLToPath(import.meta.url);
@@ -32,7 +46,8 @@ export async function getConfig(): Promise<FineBIConfig> {
     );
   }
 
-  return { baseUrl, username, password, lightAuthToken };
+  cachedConfig = { baseUrl, username, password, lightAuthToken };
+  return cachedConfig;
 }
 
 // ---------------------------------------------------------------------------
@@ -62,9 +77,6 @@ export function parseResponseData(rawData: any): any {
 // ---------------------------------------------------------------------------
 // Token retrieval & caching
 // ---------------------------------------------------------------------------
-import * as fs from "fs";
-import * as os from "os";
-import * as path from "path";
 
 const TOKEN_CACHE_PATH = path.join(os.tmpdir(), "finebi-token-cache.json");
 
@@ -152,10 +164,11 @@ export async function getToken(config: FineBIConfig, forceRefresh = false): Prom
  * Automatically logs in and includes the access token. Handles token expiration.
  */
 export async function fineBIAuthFetch(
-  config: FineBIConfig,
   path: string,
-  options?: { method?: "GET" | "POST" | "PUT" | "DELETE"; data?: unknown; headers?: Record<string, string> }
+  options?: { method?: "GET" | "POST" | "PUT" | "DELETE"; data?: unknown; headers?: Record<string, string> },
+  configParam?: FineBIConfig
 ): Promise<unknown> {
+  const config = configParam || await getConfig();
   const url = `${config.baseUrl}${path}`;
 
   const makeRequest = async (token: string) => {
@@ -208,9 +221,10 @@ export async function fineBIAuthFetch(
  * Returns the response as an ArrayBuffer with content type information.
  */
 export async function fineBIAuthDownload(
-  config: FineBIConfig,
-  path: string
+  path: string,
+  configParam?: FineBIConfig
 ): Promise<ExportResult> {
+  const config = configParam || await getConfig();
   const url = `${config.baseUrl}${path}`;
 
   const makeRequest = async (token: string) => {
@@ -270,13 +284,40 @@ export async function fineBIAuthDownload(
     }
   }
 
-  const disposition = response.headers["content-disposition"] as string | undefined;
+  const rawDisposition = response.headers["content-disposition"] as string | undefined;
   let filename: string | undefined;
-  if (disposition) {
-    // Match filename from Content-Disposition header
-    const match = disposition.match(/filename\*?=(?:UTF-8''|")?(.*?)(?:"|;|$)/i);
-    if (match?.[1]) {
-      filename = decodeURIComponent(match[1]);
+
+  if (rawDisposition) {
+    // 1. Fix common Node.js issue: headers are parsed as ISO-8859-1 (Latin1)
+    // even if they contain UTF-8 bytes.
+    const disposition = Buffer.from(rawDisposition, "binary").toString("utf8");
+
+    // 2. Try filename* (RFC 5987)
+    const starMatch = disposition.match(/filename\*=UTF-8''(.+?)(?:;|$)/i);
+    if (starMatch) {
+      try {
+        filename = decodeURIComponent(starMatch[1]);
+      } catch {
+        filename = starMatch[1];
+      }
+    }
+
+    // 3. Fallback to regular filename
+    if (!filename) {
+      const match = disposition.match(/filename=(?:"(.+?)"|([^;]+))/i);
+      if (match) {
+        const raw = (match[1] || match[2]).trim();
+        // If the server mistakenly URL-encoded the 'filename' parameter
+        if (raw.includes("%")) {
+          try {
+            filename = decodeURIComponent(raw);
+          } catch {
+            filename = raw;
+          }
+        } else {
+          filename = raw;
+        }
+      }
     }
   }
 
