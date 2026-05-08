@@ -39,14 +39,16 @@ export async function getConfig(): Promise<FineBIConfig> {
   const username = process.env["FINEBI_USERNAME"];
   const password = process.env["FINEBI_PASSWORD"];
   const lightAuthToken = process.env["FINEBI_LIGHT_AUTH_TOKEN"];
+  const fineAuthToken = process.env["FINE_AUTH_TOKEN"];
 
-  if (!baseUrl || ((!username || !password) && !lightAuthToken)) {
+
+  if (!baseUrl || (!fineAuthToken && ((!username || !password) && !lightAuthToken))) {
     throw new Error(
-      "Missing required environment variables: FINEBI_BASE_URL, and either (FINEBI_USERNAME + FINEBI_PASSWORD) or FINEBI_LIGHT_AUTH_TOKEN"
+      "Missing required environment variables: FINEBI_BASE_URL, and either FINE_AUTH_TOKEN, (FINEBI_USERNAME + FINEBI_PASSWORD), or FINEBI_LIGHT_AUTH_TOKEN"
     );
   }
 
-  cachedConfig = { baseUrl, username, password, lightAuthToken };
+  cachedConfig = { baseUrl, username, password, lightAuthToken, fineAuthToken };
   return cachedConfig;
 }
 
@@ -107,6 +109,10 @@ function savePersistedToken(token: string) {
  * Used internally by authenticated helpers.
  */
 export async function getToken(config: FineBIConfig, forceRefresh = false): Promise<string> {
+  if (config.fineAuthToken) {
+    return config.fineAuthToken;
+  }
+
   if (!cachedToken) {
     cachedToken = loadPersistedToken();
   }
