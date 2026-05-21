@@ -22,7 +22,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "prepack": "pnpm run build",
-    "prepublishOnly": "pnpm run test && pnpm run typecheck && pnpm run build"
+    "prepublishOnly": "pnpm run test && pnpm run typecheck && pnpm run build",
+    "publish:npm": "powershell -NoProfile -ExecutionPolicy Bypass -File ../../scripts/publish-npm-tarball.ps1 ."
   },
   "keywords": [
     "finebi",

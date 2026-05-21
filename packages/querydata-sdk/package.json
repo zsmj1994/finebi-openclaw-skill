@@ -1,6 +1,6 @@
 {
   "name": "finebi-querydata-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SDK for querying FineBI dashboard data and applying filters in a simulated browser environment.",
   "type": "module",
   "main": "dist/index.js",
@@ -22,7 +22,8 @@
     "clean": "if (Test-Path dist) { Remove-Item -Recurse -Force dist }",
     "start": "ts-node src/index.ts",
     "prepack": "pnpm run build",
-    "prepublishOnly": "pnpm run typecheck && pnpm run build"
+    "prepublishOnly": "pnpm run typecheck && pnpm run build",
+    "publish:npm": "powershell -NoProfile -ExecutionPolicy Bypass -File ../../scripts/publish-npm-tarball.ps1 ."
   },
   "keywords": [
     "finebi",
