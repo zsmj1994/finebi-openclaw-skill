@@ -27,6 +27,19 @@ The CLI reads these environment variables:
 
 You can create them with `finebi-cli init` or by writing a `.env` file manually.
 
+By default:
+
+- `finebi-cli init` writes to `~/.finebi-cli/.env`
+- the CLI reads `.env` in this order:
+  - current working directory
+  - `~/.finebi-cli/.env`
+  - package-local development fallbacks
+
+This means:
+
+- user-level config works from any directory
+- a project-local `.env` can still override it when needed
+
 ## Release checks
 
 Before publishing this package, run:

@@ -1,11 +1,11 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
 import * as readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import { getDefaultConfigDir, getDefaultEnvPath } from "./helpers.js";
 
 /**
  * Interactively configure FineBI connection by prompting the user
- * and saving the results to a .env file.
+ * and saving the results to the user-level .env file.
  */
 export async function runInit() {
   const rl = readline.createInterface({ input, output });
@@ -24,11 +24,12 @@ FINEBI_PASSWORD=${password.trim()}
 FINEBI_LIGHT_AUTH_TOKEN=${lightAuthToken.trim()}
 `;
 
-    const envPath = path.join(process.cwd(), ".env");
+    const envPath = getDefaultEnvPath();
+    fs.mkdirSync(getDefaultConfigDir(), { recursive: true });
     fs.writeFileSync(envPath, envContent, "utf-8");
 
     console.log(`\nSuccessfully saved configuration to ${envPath}`);
-    console.log("You can now use the FineBI commands.");
+    console.log("You can now use the FineBI commands from any directory.");
   } catch (err) {
     console.error("\nInitialization failed:", err);
     process.exit(1);

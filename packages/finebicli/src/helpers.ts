@@ -16,9 +16,18 @@ import { type FineBIConfig, type ExportResult, FineBIErrorCode } from "./types.j
 
 let cachedConfig: FineBIConfig | null = null;
 
-function getEnvSearchPaths(currentFileDir: string): string[] {
+export function getDefaultConfigDir(): string {
+  return path.join(os.homedir(), ".finebi-cli");
+}
+
+export function getDefaultEnvPath(): string {
+  return path.join(getDefaultConfigDir(), ".env");
+}
+
+export function getEnvSearchPaths(currentFileDir: string): string[] {
   return [
     path.join(process.cwd(), ".env"),
+    getDefaultEnvPath(),
     path.join(currentFileDir, "../.env"),
     path.join(currentFileDir, "../../.env"),
   ];
