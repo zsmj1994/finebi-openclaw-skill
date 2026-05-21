@@ -1,14 +1,19 @@
-# finebicli
+# finebi-cli
 
-A FineBI CLI package for data analysis and visualization workflows.
+`finebi-cli` is the publishable CLI package in this monorepo. It provides command-line access to FineBI data analysis, exports, and dashboard workflows.
 
 ## Quick Start
 
 ```bash
-npm install -g finebicli
+npm install -g finebi-cli
 finebi-cli init
 finebi-cli query-dataset -k "Sales"
 ```
+
+## Package contents
+
+- CLI executable: `finebi-cli`
+- Published files: `dist`, `README.md`, `.env.example`
 
 ## Configuration
 
@@ -21,6 +26,17 @@ The CLI reads these environment variables:
 - `FINE_AUTH_TOKEN` (optional)
 
 You can create them with `finebi-cli init` or by writing a `.env` file manually.
+
+## Release checks
+
+Before publishing this package, run:
+
+```bash
+pnpm test
+pnpm typecheck
+pnpm build
+pnpm pack
+```
 
 ## Available CLI commands
 

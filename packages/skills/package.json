@@ -1,7 +1,7 @@
 {
-  "name": "skills",
+  "name": "finebi-skills",
   "version": "0.2.16",
-  "description": "FineBI skill markdown assets for OpenClaw-style workflows.",
+  "description": "Skill markdown assets for FineBI OpenClaw-style workflows.",
   "files": [
     "SKILL.md",
     "skills",
@@ -10,10 +10,14 @@
   "keywords": [
     "finebi",
     "skills",
-    "openclaw"
+    "openclaw",
+    "prompt-assets"
   ],
   "author": "zsmj1994",
   "license": "ISC",
+  "scripts": {
+    "pack:check": "pnpm pack"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

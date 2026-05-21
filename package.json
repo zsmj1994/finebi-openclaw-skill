@@ -3,9 +3,15 @@
   "private": true,
   "packageManager": "pnpm@9.12.1",
   "scripts": {
-    "build": "pnpm --filter finebicli build",
-    "typecheck": "pnpm --filter finebicli typecheck",
-    "test": "pnpm --filter finebicli test",
-    "test:coverage": "pnpm --filter finebicli test:coverage"
+    "build": "pnpm --filter finebi-cli build",
+    "typecheck": "pnpm --filter finebi-cli typecheck",
+    "test": "pnpm --filter finebi-cli test",
+    "test:coverage": "pnpm --filter finebi-cli test:coverage",
+    "clean": "pnpm --filter finebi-cli clean",
+    "pack:cli": "pnpm -C packages/finebicli pack",
+    "pack:skills": "pnpm -C packages/skills pack",
+    "pack:all": "pnpm run pack:cli && pnpm run pack:skills",
+    "publish:cli": "pnpm -C packages/finebicli publish",
+    "publish:skills": "pnpm -C packages/skills publish"
   }
 }

@@ -1,6 +1,6 @@
-# skills
+# finebi-skills
 
-This package contains the FineBI skill markdown assets.
+`finebi-skills` is the publishable markdown asset package in this monorepo.
 
 ## Contents
 
@@ -8,3 +8,15 @@ This package contains the FineBI skill markdown assets.
 - `skills/*/SKILL.md`
 
 It does not include the CLI implementation.
+
+## Install
+
+```bash
+npm install finebi-skills
+```
+
+## Release check
+
+```bash
+pnpm pack
+```

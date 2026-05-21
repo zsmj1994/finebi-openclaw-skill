@@ -1,7 +1,7 @@
 {
-  "name": "finebicli",
+  "name": "finebi-cli",
   "version": "0.2.16",
-  "description": "A FineBI CLI package for data analysis, visualization, and reporting.",
+  "description": "Command-line tools for FineBI data analysis, exports, and dashboard workflows.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -21,11 +21,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "pnpm run build"
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run test && pnpm run typecheck && pnpm run build"
   },
   "keywords": [
     "finebi",
     "finebi-cli",
+    "dashboard-export",
     "data-analysis",
     "business-intelligence"
   ],
