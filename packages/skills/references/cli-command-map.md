@@ -17,6 +17,7 @@
 
 多步骤命令链路见：
 
+- `dashboard-id-resolution-flow.md`
 - `published-subject-resource-flow.md`
 - `dashboard-widget-data-flow.md`
 - `dataset-search-and-preview-flow.md`

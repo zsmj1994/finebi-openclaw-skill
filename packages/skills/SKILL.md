@@ -83,6 +83,7 @@ entrypoint: finebi-cli
 ## 全局约束
 
 - 先定位数据对象，再执行动作。数据对象可能是 `dashboard`、`dataset`、`subject`、`widget`。
+- 只要后续流程需要 `dashboardId`，必须先按 `references/dashboard-id-resolution-flow.md` 判断来源并解析 id。
 - 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。
 - 禁止伪造指标、趋势、负责人、任务状态、导出结果和同步结果。
 - 如果目标对象不唯一，必须先澄清，不能跳步。
@@ -91,6 +92,7 @@ entrypoint: finebi-cli
 ## 公共参考
 
 - CLI 命令与契约：`references/cli-command-map.md`
+- 仪表板 id 解析：`references/dashboard-id-resolution-flow.md`
 - 路由与拆分约定：`references/skill-routing.md`
 
 ## 无匹配时的降级策略
