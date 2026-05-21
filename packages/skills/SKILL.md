@@ -1,7 +1,7 @@
 ---
 name: "finebi-skills"
 description: "FineBI 主技能入口。先识别用户目标，再路由到 dashboard-briefing、report-to-doc、alert-to-task、sync-to-bitable 等子技能。"
-version: 0.2.17
+version: 0.2.18
 author: zsmj1994
 tags:
   - finebi
