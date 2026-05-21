@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 
@@ -16,7 +15,15 @@ vi.mock('axios', () => ({
   },
 }));
 
-import { getConfig, parseResponseData, getToken, resetConfigCache } from '../src/helpers.js';
+import {
+  getConfig,
+  parseResponseData,
+  getToken,
+  resetConfigCache,
+  getDefaultConfigDir,
+  getDefaultEnvPath,
+  getEnvSearchPaths,
+} from '../src/helpers.js';
 import { beforeEach as beforeEachGlobal } from 'vitest';
 
 beforeEachGlobal(() => {
@@ -47,6 +54,11 @@ describe('Helpers - parseResponseData', () => {
 });
 
 describe('Helpers - getConfig', () => {
+  it('should expose a stable user-level config directory', () => {
+    expect(getDefaultConfigDir()).toBe(path.join(os.homedir(), '.finebi-cli'));
+    expect(getDefaultEnvPath()).toBe(path.join(os.homedir(), '.finebi-cli', '.env'));
+  });
+
   it('should throw error if environment variables are missing', async () => {
     const originalEnv = { ...process.env };
     process.env.FINEBI_BASE_URL = '';
@@ -92,6 +104,12 @@ describe('Helpers - getConfig', () => {
     });
 
     process.env = originalEnv;
+  });
+
+  it('should search the user-level env file after cwd .env', () => {
+    const paths = getEnvSearchPaths('/repo/packages/finebicli/src');
+    expect(paths[0]).toBe(path.join(process.cwd(), '.env'));
+    expect(paths[1]).toBe(getDefaultEnvPath());
   });
 });
 
