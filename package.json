@@ -22,6 +22,10 @@
     "publish:sdk": "pnpm -C packages/querydata-sdk publish",
     "publish:cli": "pnpm -C packages/finebicli publish",
     "publish:skills": "pnpm -C packages/skills publish",
+    "clawhub:whoami": "pnpm -C packages/skills run clawhub:whoami",
+    "clawhub:inspect:skills": "pnpm -C packages/skills run clawhub:inspect",
+    "clawhub:publish:skills:dry-run": "pnpm -C packages/skills run clawhub:publish:dry-run",
+    "clawhub:publish:skills": "pnpm -C packages/skills run clawhub:publish",
     "publish:core": "pnpm run publish:sdk && pnpm run publish:cli",
     "publish:all": "pnpm run publish:sdk && pnpm run publish:cli && pnpm run publish:skills"
   }
