@@ -1,6 +1,23 @@
 # CLI Command Map
 
-这个文件记录 `finebi-skills` 写技能时优先引用的 CLI 能力边界，避免每个子技能重复发明命令名。
+This file records the FineBI CLI commands that skills should reference first.
+
+## Command contracts
+
+For field semantics, workflow-only fields, and common follow-up chains, see:
+
+- `command-contracts/get-entry-tree.md`
+- `command-contracts/get-published-subject-resources.md`
+- `command-contracts/get-widget-data.md`
+- `command-contracts/query-dataset.md`
+- `command-contracts/preview-dataset-data.md`
+
+## Workflow guides
+
+For multi-step command chains, see:
+
+- `published-subject-resource-flow.md`
+- `dashboard-widget-data-flow.md`
 
 ## Dashboard
 
@@ -29,6 +46,6 @@
 
 ## Usage rule
 
-- 子技能里优先使用这里已经存在的 CLI 命令名。
-- 如果某个工作流需要额外动作，而 CLI 里暂时没有，就在子技能里明确写成“需要补充的 CLI 能力”，不要自行编造为已存在命令。
-- 主技能不直接承诺不存在的 CLI 命令。
+- Skills should prefer the CLI command names listed here.
+- If a workflow needs extra behavior that does not exist in the CLI yet, write it as “missing CLI capability” instead of inventing a fake command.
+- The main skill should not promise CLI commands that do not exist.
