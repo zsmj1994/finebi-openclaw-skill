@@ -94,3 +94,24 @@ pnpm pack
 - `set-dashboard-style`
 
 Run `finebi-cli <command> --help` for command-specific options.
+
+## `get-widget-data`
+
+Basic usage:
+
+```bash
+finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
+```
+
+Optional dashboard-state inputs in the same SDK lifecycle:
+
+```bash
+finebi-cli get-widget-data \
+  -r <dashboardId> \
+  -w <widgetId> \
+  --filter '{"widgetId":"filterWidget","value":{"type":1,"value":["华东"]}}' \
+  --linkage '{"widgetId":"sourceWidget","payload":{"dId":"area","fieldId":"field1","text":"华东","value":[{"dId":"area","fieldId":"field1","text":"华东"}]}}'
+```
+
+- `--filter` applies one filter payload before querying the target widget
+- `--linkage` applies one linkage payload before querying the target widget

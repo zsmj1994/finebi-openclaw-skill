@@ -67,7 +67,8 @@ export async function getDashboardsBySubject(
 export async function getWidgetData(
   reportId: string,
   wId: string,
-  responseParams?: Record<string, unknown>
+  filter?: Record<string, unknown>,
+  linkage?: { widgetId: string; payload: Record<string, unknown> }
 ): Promise<ToolResult<any>> {
   let sdk: FineBIQueryDataSDK | null = null;
   try {
@@ -76,10 +77,18 @@ export async function getWidgetData(
     const sdkInitOptions = {
       dashboardId: reportId,
       finebiServerUrl: config.baseUrl,
-      ...(responseParams ?? {}),
     } as any;
 
     sdk = await FineBIQueryDataSDK.create(sdkInitOptions);
+
+    if (filter) {
+      await sdk.filter.applyFilter(filter);
+    }
+
+    if (linkage) {
+      await sdk.linkage.applyLinkage(linkage.widgetId, linkage.payload as any);
+    }
+
     const data = await sdk.query.getWidgetData(wId);
 
     console.log("Widget Data:", data);

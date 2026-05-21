@@ -2,19 +2,19 @@
 
 ## 目标
 
-从一个仪表板中获取一个或多个可取数组件的数据。
+从一个仪表板中获取一个或多个可取数组件的真实数据。
 
-这个流程用于用户想看组件级图表数据、表格数据或指标数据的场景。
+这个流程用于用户想看图表数据、表格数据、指标卡数据，或者需要结合过滤/联动状态查看组件结果的场景。
 
 ## 适用场景
 
 当用户提出以下需求时使用：
 
-- 查看某个看板组件背后的数据
+- 查看某个看板组件背后的真实数据
 - 获取图表数据
-- 获取表格组件的数据
-- 查看某个指标卡的数据
-- 做组件级分析
+- 获取表格组件数据
+- 查看某个指标卡的数值
+- 在指定过滤条件或联动上下文下取数组件
 
 ## 必要命令
 
@@ -41,16 +41,14 @@
 finebi-cli get-dashboard-design-configure -d <dashboardId>
 ```
 
-预期结果：
+重点关注：
 
-- 仪表板配置对象
 - `designConfigure.reportWidgets`
 
 ### 第 3 步：检查 `reportWidgets`
 
-把 `reportWidgets` 视为：
+把 `reportWidgets` 视为对象映射：
 
-- 一个对象
 - 每个 `key` 是组件 id
 - 每个 `value` 是该组件的配置对象
 
@@ -72,16 +70,24 @@ finebi-cli get-dashboard-design-configure -d <dashboardId>
 
 ### 第 5 步：获取组件数据
 
-调用：
+基础调用：
 
 ```bash
 finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
+```
+
+如果用户明确给出了过滤条件或联动上下文，也可以在同一次命令里附加：
+
+```bash
+finebi-cli get-widget-data -r <dashboardId> -w <widgetId> --filter '<json>'
+finebi-cli get-widget-data -r <dashboardId> -w <widgetId> --linkage '<json>'
 ```
 
 这里：
 
 - `reportId` 使用已知的 `dashboardId`
 - `widgetId` 使用 `reportWidgets` 对象的 `key`
+- `--filter` 和 `--linkage` 会在同一次 SDK 生命周期里先执行，再取目标组件数据
 
 ## 常见错误
 
@@ -109,13 +115,17 @@ finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
 
 `type = 2` 的过滤控件不能作为 `get-widget-data` 的目标。
 
+### 错误 4：把过滤或联动拆成另一条独立生命周期的命令
+
+如果你想模拟“先过滤/联动，再取数”，应优先把 `--filter` 或 `--linkage` 直接附加到同一次 `get-widget-data` 调用里。
+
 ## 推荐行为
 
-1. 先确认 `dashboardId`。
-2. 读取 `designConfigure.reportWidgets`。
-3. 根据 `type` 区分可取数组件和过滤控件。
-4. 保留组件 id 供后续机器步骤使用。
-5. 保留标题或展示线索供用户理解。
+1. 先确认 `dashboardId`
+2. 读取 `designConfigure.reportWidgets`
+3. 根据 `type` 区分可取数组件和过滤控件
+4. 保留组件 id 与标题，便于后续解释
+5. 如果用户给了过滤条件或联动上下文，优先附加到同一次 `get-widget-data` 调用
 
 ## 简写版本
 
@@ -123,6 +133,7 @@ finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
 先拿到 dashboard id
 -> get-dashboard-design-configure(dashboardId)
 -> 检查 reportWidgets
--> 选择 key 且 type=1
+-> 选择 key 中 type=1 的组件
+-> 如有需要，附加 filter/linkage
 -> get-widget-data(reportId=dashboardId, widgetId=该 key)
 ```

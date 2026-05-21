@@ -161,19 +161,36 @@ program
   .description("Get data for a specific widget inside a dashboard")
   .requiredOption("-r, --report-id <id>", "Dashboard/Report ID")
   .requiredOption("-w, --widget-id <id>", "Widget ID")
-  .option("--response-params <json>", "Response params JSON to pass through to SDK init")
+  .option("--filter <json>", "Filter payload JSON to apply before querying widget data")
+  .option("--linkage <json>", "Linkage payload JSON with widgetId and payload to apply before querying widget data")
   .action(async (options) => {
-    let responseParams: Record<string, unknown> | undefined;
-    if (options.responseParams) {
+    let filter: Record<string, unknown> | undefined;
+    let linkage: { widgetId: string; payload: Record<string, unknown> } | undefined;
+
+    if (options.filter) {
       try {
-        responseParams = JSON.parse(options.responseParams);
+        filter = JSON.parse(options.filter);
       } catch {
-        console.error("Error: --response-params must be valid JSON");
+        console.error("Error: --filter must be valid JSON");
         process.exit(1);
       }
     }
 
-    const res = await getWidgetData(options.reportId, options.widgetId, responseParams);
+    if (options.linkage) {
+      try {
+        linkage = JSON.parse(options.linkage);
+      } catch {
+        console.error("Error: --linkage must be valid JSON");
+        process.exit(1);
+      }
+
+      if (!linkage || typeof linkage.widgetId !== "string" || !linkage.payload || typeof linkage.payload !== "object") {
+        console.error("Error: --linkage must be JSON with widgetId and payload fields");
+        process.exit(1);
+      }
+    }
+
+    const res = await getWidgetData(options.reportId, options.widgetId, filter, linkage);
     handleResult(res);
   });
 
