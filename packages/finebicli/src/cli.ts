@@ -125,7 +125,7 @@ program
   });
 
 program
-  .command("query-dataset")
+  .command("search-public-dataset")
   .description("Query a FineBI dataset by keyword")
   .option("-k, --keyword <keyword>", "Keyword to search")
   .option("-p, --page-index <number>", "Page index", "1")
