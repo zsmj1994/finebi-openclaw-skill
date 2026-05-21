@@ -1,10 +1,10 @@
 # query-dataset
 
-## Purpose
+## 用途
 
-Search public FineBI datasets by keyword.
+按关键字搜索公共数据目录中的 FineBI 数据集。
 
-This command is used to locate candidate datasets before fetching preview data.
+这个命令是 `search-my-datasets` 之后的回退步骤，用于“我的分析”里没有找到目标数据集时继续在公共目录中查找。
 
 ## CLI
 
@@ -12,49 +12,54 @@ This command is used to locate candidate datasets before fetching preview data.
 finebi-cli query-dataset -k "<keyword>" -p 1 -s 150
 ```
 
-## Input contract
+## 输入契约
 
-- `keyword`: dataset search keyword
-- `pageIndex`: result page index
-- `pageSize`: result page size
+- `keyword`：数据集搜索关键字
+- `pageIndex`：结果页码
+- `pageSize`：结果页大小
 
-## Response contract
+## 返回契约
 
-The command returns the raw search payload wrapped in `ToolResult<any>`.
+这个命令返回一个 `ToolResult<any>`，其中包含原始公共数据集搜索结果。
 
-The exact payload may vary by FineBI version, but it should be treated as a dataset search result list.
+具体结构会因 FineBI 版本不同而变化，但应当把它视作候选数据集列表。
 
-## Important fields
+## 重要字段
 
-### Display fields
+### 展示字段
 
-- dataset display name fields such as `name`, `text`, or equivalent title fields when present
-- description-like fields when present
+- 数据集名称字段，如 `name`、`text` 或等价标题字段
+- 描述类字段
 
-### Workflow fields
+### 工作流字段
 
-- the dataset table identifier used as `tableName` in `preview-dataset-data`
-- item identifiers that let the agent distinguish one dataset from another
+- 后续传给 `preview-dataset-data` 的数据集标识，也就是 `tableName`
+- 用于区分候选数据集的内部标识
 
-## Semantic notes
+## 语义说明
 
-- The most important output of this command is the dataset identifier needed for `preview-dataset-data`.
-- In many FineBI responses, the dataset's name-like identifier is also the table identifier. The existing workflow in this repo assumes the chosen dataset id or name is passed as `tableName` to `preview-dataset-data`.
-- If multiple datasets match, ask the user to choose using display fields, then keep the chosen workflow identifier.
+- 不要把这个命令当成默认第一步。
+- 查数据集时应优先调用 `search-my-datasets`，只有没找到时再调用 `query-dataset`。
+- 这个命令最重要的输出是后续 `preview-dataset-data` 所需的数据集标识。
+- 在很多 FineBI 返回里，数据集的名称类字段也可能就是表标识。当前仓库工作流默认会把选中的数据集 id 或名称传给 `preview-dataset-data` 作为 `tableName`。
+- 如果有多个候选，应基于展示字段请用户确认，再保留被选中的工作流标识。
 
-## Common follow-up
+## 常见后续链路
 
-1. Call `query-dataset`
-2. Find the correct dataset candidate
-3. Extract the dataset identifier used as `tableName`
-4. Call `preview-dataset-data -t <tableName>`
+1. 调用 `search-my-datasets`
+2. 如果没找到，再调用 `query-dataset`
+3. 找到正确的公共数据集候选
+4. 提取作为 `tableName` 使用的数据集标识
+5. 调用 `preview-dataset-data -t <tableName>`
 
-## Do
+## 应该做
 
-- Use search results to narrow to a unique dataset
-- Prefer showing names and descriptions when asking the user to disambiguate
+- 把这个命令作为公共目录回退步骤
+- 用搜索结果缩小到唯一候选
+- 请用户消歧时，优先展示名称和描述
 
-## Do not
+## 不要做
 
-- Do not jump to preview without a concrete dataset identifier
-- Do not assume the first result is correct when multiple close matches exist
+- 当“我的分析”应先检查时，不要直接从这个命令开始
+- 在没有明确数据集标识时，不要直接预览
+- 如果有多个近似结果，不要默认第一个就是正确的

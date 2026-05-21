@@ -1,131 +1,131 @@
-# Published Subject Resource Flow
+# 已发布主题资源流程
 
-## Goal
+## 目标
 
-Find the resources exposed by a published analysis subject.
+找到某个已发布分析主题对外暴露的资源。
 
-This workflow is used when the user wants to inspect what a published entry node actually exposes behind the scenes.
+这个流程用于用户想知道某个目录节点背后实际发布了哪些资源的场景。
 
-## When to use
+## 适用场景
 
-Use this workflow when the user asks for any of the following:
+当用户提出以下需求时使用：
 
-- resources under an entry tree node
-- published subject resources
-- the dashboards, widgets, or bundled resources behind an entry
-- what a specific published directory node points to
+- 查看某个目录节点下的资源
+- 查看已发布主题资源
+- 查看某个入口背后的 dashboard、widget 或资源包
+- 确认某个已发布目录节点指向什么
 
-## Required commands
+## 必要命令
 
 - `get-entry-tree`
 - `get-published-subject-resources`
 
-## Workflow
+## 流程
 
-### Step 1: Load entry nodes
+### 第 1 步：读取入口树
 
-Call:
+调用：
 
 ```bash
 finebi-cli get-entry-tree
 ```
 
-Expected result:
+预期结果：
 
-- a list of entry nodes the current user can access
+- 当前用户可访问的入口节点列表
 
-Use these fields to identify the correct node:
+识别节点时优先使用：
 
 - `text`
 - `path`
 - `fullParentName`
 
-## Step 2: Select the target node
+### 第 2 步：选择目标节点
 
-Find the node that matches the user's intended directory or published entry.
+找到与用户意图匹配的目录或已发布入口。
 
-If there are multiple close matches:
+如果存在多个近似候选：
 
-- show `text` and `path`
-- ask the user to choose the correct one
+- 展示 `text` 和 `path`
+- 请用户确认
 
-## Step 3: Extract `templateId`
+### 第 3 步：读取 `templateId`
 
-From the selected node, read:
+从选中的节点上读取：
 
 - `templateId`
 
-This is the key workflow field for the next step.
+这是下一步最关键的工作流字段。
 
-## Step 4: Load published subject resources
+### 第 4 步：读取已发布主题资源
 
-Call:
+调用：
 
 ```bash
 finebi-cli get-published-subject-resources -t <templateId>
 ```
 
-Expected result:
+预期结果：
 
-- the published resource bundle behind the selected entry node
-- a `resourceList[]` that can be used for later resource-specific actions
+- 该入口背后的已发布资源包
+- 一个可供后续动作使用的 `resourceList[]`
 
-## Output interpretation
+## 输出解释
 
-### User-facing fields
+### 用户展示字段
 
-- bundle `name`
+- 资源包 `name`
 - `resourceList[].name`
 
-### Workflow fields
+### 工作流字段
 
-- bundle `id`
+- 资源包 `id`
 - `resourceList[].id`
 - `resourceList[].itemType`
 - `resourceList[].tableType`
 
-## Common mistakes
+## 常见错误
 
-### Mistake 1: using entry node `id` instead of `templateId`
+### 错误 1：把入口节点 `id` 当成 `templateId`
 
-Do not do this:
+不要这样做：
 
 ```text
 get-entry-tree -> selectedNode.id -> get-published-subject-resources
 ```
 
-Correct flow:
+正确流程：
 
 ```text
 get-entry-tree -> selectedNode.templateId -> get-published-subject-resources
 ```
 
-### Mistake 2: treating `templateId` as display-only metadata
+### 错误 2：把 `templateId` 当成普通展示字段
 
-`templateId` is not a cosmetic field.
+`templateId` 不是普通元数据。
 
-It is the publish task id required by the next command.
+它就是下一条命令需要的发布任务 id。
 
-### Mistake 3: skipping disambiguation
+### 错误 3：跳过消歧
 
-If more than one node matches the user's wording, do not guess.
+如果有多个节点都像目标，不要猜测。
 
-Ask the user to choose based on `text` and `path`.
+应基于 `text` 和 `path` 请用户确认。
 
-## Recommended agent behavior
+## 推荐行为
 
-1. Resolve the entry node first
-2. Preserve both display fields and workflow fields
-3. Use `templateId` for downstream lookup
-4. Use `resourceList[].name` to explain results to the user
-5. Keep `resourceList[].id` for later machine steps
+1. 先确定入口节点。
+2. 同时保留展示字段和工作流字段。
+3. 下游查询必须使用 `templateId`。
+4. 用 `resourceList[].name` 向用户解释结果。
+5. 保留 `resourceList[].id` 供后续动作使用。
 
-## Short form
+## 简写版本
 
 ```text
 get-entry-tree
--> choose node by text/path
--> read templateId
+-> 按 text/path 选节点
+-> 读取 templateId
 -> get-published-subject-resources(templateId)
--> inspect resourceList
+-> 检查 resourceList
 ```

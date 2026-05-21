@@ -1,10 +1,10 @@
 # preview-dataset-data
 
-## Purpose
+## 用途
 
-Fetch field metadata and preview records for a specific dataset table.
+获取指定数据集表的字段元数据和预览记录。
 
-This command is usually called after `query-dataset`, once the correct dataset identifier is known.
+这个命令通常在 `search-my-datasets` 或 `query-dataset` 之后调用，也就是已经确认好目标数据集标识之后。
 
 ## CLI
 
@@ -12,58 +12,61 @@ This command is usually called after `query-dataset`, once the correct dataset i
 finebi-cli preview-dataset-data -t <tableName> -k "<keyword>" -l 5000 -p 1
 ```
 
-## Input contract
+## 输入契约
 
-- `tableName`: dataset table identifier
-- `keyword`: optional field filter keyword
-- `limit`: record limit
-- `pageIndex`: preview page index
+- `tableName`：数据集表标识
+- `keyword`：可选，字段过滤关键字
+- `limit`：返回记录条数上限
+- `pageIndex`：预览页码
 
-## Response contract
+## 返回契约
 
-Returns a `ToolResult<any>` with the raw dataset preview payload from FineBI.
+返回 `ToolResult<any>`，其中包含 FineBI 返回的原始预览载荷。
 
-The payload should be interpreted as a combination of:
+这个载荷通常应被理解为以下内容的组合：
 
-- field metadata
-- preview records
-- paging-related metadata
+- 字段元数据
+- 预览记录
+- 分页相关信息
 
-## Important fields
+## 重要字段
 
-### Display fields
+### 展示字段
 
-- field names
-- field labels or descriptions when present
-- preview rows or sample values
+- 字段名
+- 字段标题或描述
+- 预览行或样例值
 
-### Workflow fields
+### 工作流字段
 
-- the confirmed `tableName` context for downstream reasoning
-- field identifiers or field names used for filtering, alert rules, or sync mappings
-- paging metadata when additional preview requests are needed
+- 已确认的 `tableName`
+- 用于过滤、告警或同步映射的字段标识
+- 分页信息
 
-## Semantic notes
+## 语义说明
 
-- `tableName` is the key input workflow field; it should come from the dataset lookup step.
-- The main value of this command is not only sample rows, but also field structure.
-- For later workflows such as alerting, syncing, or report generation, keep both:
-  - user-facing field names
-  - machine-usable field identifiers or stable names
+- `tableName` 是最关键的输入工作流字段，应来自前面的数据集查找步骤。
+- 这个命令的价值不只是看样例行，也包括确认字段结构。
+- 该命令支持分页预览，通过 `pageIndex` 翻页。
+- 当用户要继续浏览更多记录时，应保持相同的 `tableName`，只提高 `pageIndex`。
+- 对后续告警、同步或文档流程来说，要同时保留用户可读字段名和机器可用字段标识。
 
-## Common follow-up
+## 常见后续链路
 
-1. Call `query-dataset`
-2. Resolve the correct dataset identifier
-3. Call `preview-dataset-data`
-4. Use returned field metadata to choose dimensions, metrics, filters, or mappings
+1. 调用 `search-my-datasets`
+2. 如果没找到，再调用 `query-dataset`
+3. 确定目标数据集标识
+4. 调用 `preview-dataset-data`
+5. 用返回的字段元数据选择维度、指标、过滤条件或映射
+6. 如有需要，继续请求下一页
 
-## Do
+## 应该做
 
-- Use this command to confirm field structure before writing downstream logic
-- Show a small preview to the user when they need help choosing fields
+- 在编写下游逻辑前，先用这个命令确认真实字段结构
+- 当用户需要帮助选字段时，展示一小段预览
+- 继续浏览时只调整 `pageIndex`
 
-## Do not
+## 不要做
 
-- Do not invent field names or sample values
-- Do not build alert or sync rules before confirming the actual field structure
+- 不要伪造字段名或样例值
+- 在没确认字段结构前，不要先写告警或同步规则

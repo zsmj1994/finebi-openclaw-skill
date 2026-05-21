@@ -1,10 +1,10 @@
 # get-entry-tree
 
-## Purpose
+## 用途
 
-Return the FineBI entry tree nodes the current user can access.
+返回当前用户可访问的 FineBI 入口树节点。
 
-This command is mainly used to locate published entry nodes and extract the `templateId` needed by downstream commands.
+这个命令主要用于定位已发布入口节点，并提取后续命令需要的 `templateId`。
 
 ## CLI
 
@@ -12,11 +12,11 @@ This command is mainly used to locate published entry nodes and extract the `tem
 finebi-cli get-entry-tree
 ```
 
-## Response contract
+## 返回契约
 
-Returns a `ToolResult<EntryTreeNode[]>`.
+返回 `ToolResult<EntryTreeNode[]>`。
 
-On success:
+成功时类似：
 
 ```json
 {
@@ -33,42 +33,42 @@ On success:
 }
 ```
 
-## Important fields
+## 重要字段
 
-### Display fields
+### 展示字段
 
-- `text`: human-readable node name, some times is mean dashboard name
-- `path`: display path of the node
-- `fullParentName`: full parent display name when present
-- `parentNames`: parent name chain
+- `text`：节点展示名称
+- `path`：节点展示路径
+- `fullParentName`：完整父级名称
+- `parentNames`：父级名称链路
 
-### Workflow fields
+### 工作流字段
 
-- `id`: current entry node id
-- `templateId`: publish task id of the published subject behind this node
-- `isParent`: whether the node has children
+- `id`：当前入口节点 id
+- `templateId`：该入口背后已发布主题的发布任务 id
+- `isParent`：是否还有子节点
 
-## Semantic notes
+## 语义说明
 
-- `templateId` is the most important workflow field in this command.
-- Do not treat `templateId` as display-only metadata.
-- When the next step is to inspect published subject resources, use `templateId` as the input to `get-published-subject-resources`.
-- Do not pass the entry node `id` into `get-published-subject-resources`.
+- `templateId` 是这个命令最重要的工作流字段。
+- 不要把 `templateId` 当成普通展示元数据。
+- 如果下一步要查已发布主题资源，应把 `templateId` 作为 `get-published-subject-resources` 的输入。
+- 不要把入口节点的 `id` 传给 `get-published-subject-resources`。
 
-## Common follow-up
+## 常见后续链路
 
-1. Call `get-entry-tree`
-2. Find the target node by `text` or `path`
-3. Read that node's `templateId`
-4. Call `get-published-subject-resources -t <templateId>`
+1. 调用 `get-entry-tree`
+2. 通过 `text` 或 `path` 找到目标节点
+3. 读取该节点的 `templateId`
+4. 调用 `get-published-subject-resources -t <templateId>`
 
-## Do
+## 应该做
 
-- Use `text` and `path` to help the user identify the correct node
-- Use `templateId` for the next published-resource lookup
+- 用 `text` 和 `path` 帮助用户识别正确节点
+- 用 `templateId` 做下一步已发布资源查询
 
-## Do not
+## 不要做
 
-- Do not guess `templateId`
-- Do not use node `id` where a publish task id is required
-- Do not expose internal fields to the user unless they help the workflow
+- 不要猜测 `templateId`
+- 不要在需要发布任务 id 的地方误用节点 `id`
+- 不要把内部字段直接暴露给用户，除非它确实有助于后续流程

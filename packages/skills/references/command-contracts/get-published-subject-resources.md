@@ -1,10 +1,10 @@
 # get-published-subject-resources
 
-## Purpose
+## 用途
 
-Return the resources exposed by a published analysis subject.
+返回某个已发布分析主题对外暴露的资源。
 
-This command is usually called after `get-entry-tree`, using the selected node's `templateId`.
+这个命令通常在 `get-entry-tree` 之后调用，输入使用选中节点的 `templateId`。
 
 ## CLI
 
@@ -12,15 +12,15 @@ This command is usually called after `get-entry-tree`, using the selected node's
 finebi-cli get-published-subject-resources -t <publishTaskId>
 ```
 
-## Input contract
+## 输入契约
 
-- `taskId`: the published subject `templateId`, which is also the `publishTaskId`
+- `taskId`：已发布主题的 `templateId`，也就是 `publishTaskId`
 
-## Response contract
+## 返回契约
 
-Returns a `ToolResult<PublishedSubjectResource>`.
+返回 `ToolResult<PublishedSubjectResource>`。
 
-On success:
+成功时类似：
 
 ```json
 {
@@ -40,40 +40,40 @@ On success:
 }
 ```
 
-## Important fields
+## 重要字段
 
-### Display fields
+### 展示字段
 
-- `name`: published resource group name
-- `resourceList[].name`: resource display name
+- `name`：资源包名称
+- `resourceList[].name`：资源展示名称
 
-### Workflow fields
+### 工作流字段
 
-- `id`: resource group id
-- `resourceList[].id`: downstream resource id for later actions
-- `resourceList[].itemType`: resource category discriminator
-- `resourceList[].tableType`: resource subtype discriminator
+- `id`：资源包 id
+- `resourceList[].id`：后续资源动作需要的资源 id
+- `resourceList[].itemType`：资源类别
+- `resourceList[].tableType`：资源子类型
 
-## Semantic notes
+## 语义说明
 
-- The input to this command should come from `get-entry-tree.data[].templateId`.
-- The result is not the entry node itself; it is the published resource bundle behind that entry.
-- `resourceList[].id` is usually the key workflow field for later resource-specific actions.
+- 这个命令的输入应来自 `get-entry-tree.data[].templateId`。
+- 返回结果不是入口节点本身，而是该入口背后的已发布资源包。
+- `resourceList[].id` 通常是后续资源动作最关键的工作流字段。
 
-## Common follow-up
+## 常见后续链路
 
-1. Call `get-entry-tree`
-2. Select the correct node
-3. Read `templateId`
-4. Call `get-published-subject-resources`
-5. Inspect `resourceList[]` to decide the next action
+1. 调用 `get-entry-tree`
+2. 选择正确节点
+3. 读取 `templateId`
+4. 调用 `get-published-subject-resources`
+5. 检查 `resourceList[]` 决定下一步动作
 
-## Do
+## 应该做
 
-- Keep both the bundle-level `id` and each `resourceList[].id`
-- Show `name` fields to the user when asking them to choose a resource
+- 同时保留资源包级别的 `id` 和每个 `resourceList[].id`
+- 向用户解释时优先展示 `name`
 
-## Do not
+## 不要做
 
-- Do not pass entry node `id` as `taskId`
-- Do not assume every resource in `resourceList` has the same downstream use
+- 不要把入口节点 `id` 当成 `taskId`
+- 不要默认 `resourceList` 里的所有资源都能走同一种后续处理

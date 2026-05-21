@@ -1,128 +1,128 @@
-# Dashboard Widget Data Flow
+# 仪表板组件取数流程
 
-## Goal
+## 目标
 
-Fetch the data of one or more queryable widgets from a dashboard.
+从一个仪表板中获取一个或多个可取数组件的数据。
 
-This workflow is used when the user wants chart data, table data, or metric data from a dashboard component.
+这个流程用于用户想看组件级图表数据、表格数据或指标数据的场景。
 
-## When to use
+## 适用场景
 
-Use this workflow when the user asks for any of the following:
+当用户提出以下需求时使用：
 
-- data behind a dashboard widget
-- chart data from a dashboard
-- table data from a dashboard component
-- metrics shown by a specific dashboard block
-- component-level dashboard analysis
+- 查看某个看板组件背后的数据
+- 获取图表数据
+- 获取表格组件的数据
+- 查看某个指标卡的数据
+- 做组件级分析
 
-## Required commands
+## 必要命令
 
 - `get-dashboard-design-configure`
 - `get-widget-data`
 
-## Workflow
+## 流程
 
-### Step 1: Resolve the dashboard id
+### 第 1 步：先拿到 dashboard id
 
-First make sure the dashboard id is already known.
+先确保已经知道 `dashboardId`。
 
-It may come from:
+它可能来自：
 
 - `search-my-dashboards`
 - `get-dashboards-by-subject`
-- a published resource workflow
+- 已发布资源流程
 
-## Step 2: Load dashboard design configuration
+### 第 2 步：读取仪表板配置
 
-Call:
+调用：
 
 ```bash
 finebi-cli get-dashboard-design-configure -d <dashboardId>
 ```
 
-Expected result:
+预期结果：
 
-- dashboard configuration payload
+- 仪表板配置对象
 - `designConfigure.reportWidgets`
 
-## Step 3: Inspect `reportWidgets`
+### 第 3 步：检查 `reportWidgets`
 
-Treat `reportWidgets` as:
+把 `reportWidgets` 视为：
 
-- an object
-- each key is a widget id
-- each value is the widget configuration for that widget id
+- 一个对象
+- 每个 `key` 是组件 id
+- 每个 `value` 是该组件的配置对象
 
-Important field:
+关键字段：
 
-- `type = 1`: queryable data widget
-- `type = 2`: filter control
+- `type = 1`：可取数的数据组件
+- `type = 2`：过滤控件
 
-## Step 4: Choose the target widget
+### 第 4 步：选择目标组件
 
-When the user wants actual widget data:
+当用户要看真实组件数据时：
 
-- choose only widgets with `type = 1`
+- 只能选择 `type = 1` 的组件
 
-When more than one widget matches:
+如果有多个组件都可能符合：
 
-- show title-like fields or position hints
-- ask the user to disambiguate if needed
+- 展示标题类字段或位置线索
+- 必要时请用户确认
 
-## Step 5: Fetch widget data
+### 第 5 步：获取组件数据
 
-Call:
+调用：
 
 ```bash
 finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
 ```
 
-Use:
+这里：
 
-- the known dashboard id as `reportId`
-- the selected `reportWidgets` object key as `widgetId`
+- `reportId` 使用已知的 `dashboardId`
+- `widgetId` 使用 `reportWidgets` 对象的 `key`
 
-## Common mistakes
+## 常见错误
 
-### Mistake 1: calling `get-widget-data` before reading dashboard config
+### 错误 1：没读 dashboard 配置就直接取数
 
-Do not guess widget ids.
+不要猜测组件 id。
 
-Correct flow:
+正确流程：
 
 ```text
-resolve dashboard id
+先拿到 dashboard id
 -> get-dashboard-design-configure
--> inspect reportWidgets
--> choose type=1 widget
+-> 检查 reportWidgets
+-> 选择 type=1 组件
 -> get-widget-data
 ```
 
-### Mistake 2: treating `reportWidgets` as an array
+### 错误 2：把 `reportWidgets` 当成数组
 
-`reportWidgets` is an object map.
+`reportWidgets` 是对象映射。
 
-The widget id is the object key.
+组件 id 是对象的 `key`。
 
-### Mistake 3: querying filter controls
+### 错误 3：对过滤控件取数
 
-Do not use `type = 2` filter controls as the target of `get-widget-data`.
+`type = 2` 的过滤控件不能作为 `get-widget-data` 的目标。
 
-## Recommended agent behavior
+## 推荐行为
 
-1. Resolve the dashboard id first
-2. Read `designConfigure.reportWidgets`
-3. Separate queryable widgets from filter controls using `type`
-4. Keep widget ids for machine steps
-5. Keep widget titles or display hints for user explanation
+1. 先确认 `dashboardId`。
+2. 读取 `designConfigure.reportWidgets`。
+3. 根据 `type` 区分可取数组件和过滤控件。
+4. 保留组件 id 供后续机器步骤使用。
+5. 保留标题或展示线索供用户理解。
 
-## Short form
+## 简写版本
 
 ```text
-resolve dashboard id
+先拿到 dashboard id
 -> get-dashboard-design-configure(dashboardId)
--> inspect reportWidgets
--> choose key where type=1
--> get-widget-data(reportId=dashboardId, widgetId=thatKey)
+-> 检查 reportWidgets
+-> 选择 key 且 type=1
+-> get-widget-data(reportId=dashboardId, widgetId=该 key)
 ```
