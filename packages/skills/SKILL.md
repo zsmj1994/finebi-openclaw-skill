@@ -1,23 +1,18 @@
 ---
-name: "finebi-openclaw-skill"
-description: "一个用于 OpenClaw 的 FineBI 技能，支持 npx 直接运行和插件体系，提供数据分析和可视化功能"
-version: 0.1.2
+name: "finebi-skills"
+description: "FineBI 主技能入口。先识别用户目标，再路由到 dashboard-briefing、report-to-doc、alert-to-task、sync-to-bitable 等子技能。"
+version: 0.2.16
 author: zsmj1994
 tags:
   - finebi
-  - data-analysis
-  - visualization
+  - skill-router
   - business-intelligence
   - reporting
-triggers:
-  - 使用 FineBI 进行数据看板分析
-  - 查询获取 FineBI 数据资产
-  - 导出并分析 FineBI 报表数据
 metadata:
   clawdbot:
     emoji: "📊"
     primaryEnv: "FINEBI_BASE_URL"
-    install: "npm list -g finebi-openclaw-skill || npm install -g finebi-openclaw-skill"
+    install: "npm list -g finebi-cli || npm install -g finebi-cli"
     requires:
       bins: ["node", "finebi-cli"]
       env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD", "FINEBI_LIGHT_AUTH_TOKEN"]
@@ -25,281 +20,84 @@ runner: cli
 entrypoint: finebi-cli
 ---
 
-# FineBI 技能
+# FineBI 主技能
 
-## 技能介绍
+这个文件是 `finebi-skills` 包的主技能入口。它负责先识别用户目标，再路由到合适的子技能，而不是把所有场景的 SOP 都塞在一个文件里。
 
-该技能集成了 FineBI，能够通过自然语言实现数据分析、生成报告以及查询数据集等功能。
+## 什么时候先用主技能
 
-## 工具列表
+当用户要做下面这些事情时，先命中这个主技能：
 
-### `init`
-交互式配置 FineBI 连接（通常终端交互使用）。
+- 查找并分析看板、组件和指标
+- 生成周报、月报、经营分析文档
+- 监控阈值并转成任务或提醒
+- 把数据同步到飞书多维表格
 
-**参数:** 无
+## 子技能索引
 
-### `search-my-datasets`
-搜索"我的分析"中的数据集。
+| 子技能 | 目录 | 处理场景 |
+| --- | --- | --- |
+| `dashboard-briefing` | `skills/dashboard-briefing` | 看板摘要、群播报、定时简报 |
+| `report-to-doc` | `skills/report-to-doc` | 看板导出、分析报告、文档沉淀 |
+| `alert-to-task` | `skills/alert-to-task` | 阈值监控、异常检测、任务创建 |
+| `sync-to-bitable` | `skills/sync-to-bitable` | 数据同步到飞书多维表格 |
 
-**参数:**
-- `keyword` (string, 选填): 搜索关键字
-- `pageIndex` (number, 选填): 分页索引，默认为 1
-- `searchType` (number, 选填): 搜索类型，默认为 3
-- `filterType` (number, 选填): 过滤类型，默认为 1
+## 路由规则
 
-### `search-my-dashboards`
-搜索“我的分析”中的仪表板。
+### 路由到 `dashboard-briefing`
 
-**参数:**
-- `keyword` (string, 选填): 搜索关键字
-- `pageIndex` (number, 选填): 分页索引，默认为 1
+当用户提到以下意图时优先路由：
 
-### `get-publick-datasets-list`
-获取公共数据集列表。
+- “给我生成日报/周报摘要”
+- “把经营看板同步到群里”
+- “做一个定时播报”
+- “先发一条测试卡片看看”
 
-**参数:**
-- `pageIndex` (number, 选填): 分页索引，默认为 1
-- `pageSize` (number, 选填): 每页数据量，默认为 150
+### 路由到 `report-to-doc`
 
-### `query-dataset`
-通过关键字查询/搜索公共数据集。
+当用户提到以下意图时优先路由：
 
-**参数:**
-- `keyword` (string, 选填): 搜索关键字
-- `pageIndex` (number, 选填): 分页索引，默认为 1
-- `pageSize` (number, 选填): 每页数据量，默认为 150
+- “把这个看板整理成文档”
+- “导出 PDF 后做分析报告”
+- “给我一份经营分析稿”
+- “把图表和结论沉淀成文档”
 
-### `preview-dataset-data`
-获取数据集表的字段列表和数据预览。
+### 路由到 `alert-to-task`
 
-**参数:**
-- `tableName` (string, 必填): 数据集表 ID
-- `keyword` (string, 选填): 过滤字段的关键字
-- `limit` (number, 选填): 提取记录数，默认为 5000
-- `pageIndex` (number, 选填): 页码，默认为 1
+当用户提到以下意图时优先路由：
 
-### `export-dashboard-excel`
-将仪表板导出为 Excel 格式。
+- “低于阈值就告警”
+- “异常时自动建任务”
+- “监控库存/销量/回款”
+- “命中条件后通知负责人”
 
-**参数:**
-- `reportId` (string, 必填): 仪表板 ID
-- `widgetId` (string, 选填): 组件 ID，用于导出特定的组件
+### 路由到 `sync-to-bitable`
 
-### `export-dashboard-pdf`
-将仪表板导出为 PDF 格式。响应中会返回文件路径，和文件名。
+当用户提到以下意图时优先路由：
 
-**参数:**
-- `reportId` (string, 必填): 仪表板 ID
+- “同步到飞书多维表格”
+- “按主键增量更新”
+- “覆盖整张表”
+- “定时把数据灌到 bitable”
 
-### `export-dashboard-image`
-将仪表板导出为 PNG 格式的图片。
+## 全局约束
 
-**参数:**
-- `reportId` (string, 必填): 仪表板 ID
+- 先定位数据对象，再执行动作。数据对象可能是 dashboard、dataset、subject、widget。
+- 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。
+- 禁止伪造指标、趋势、负责人、任务状态、导出结果和同步结果。
+- 如果目标对象不唯一，必须先澄清，不能跳步。
+- 如果子技能匹配明显，直接按子技能 SOP 继续，不要在主技能里重复细节流程。
 
-### `get-dashboard-user-info`
-获取当前用户信息及其创建的仪表板。
+## 公共参考
 
-**参数:** 无
+- CLI 命令约定：`references/cli-command-map.md`
+- 路由与拆分约定：`references/skill-routing.md`
 
+## 无匹配时的降级策略
 
-### `get-dashboards-by-subject`
-获取特定主题下的仪表板列表。
+如果用户目标不能明确落到某一个子技能：
 
-**参数:**
-- `subjectId` (string, 必填): 主题 ID
-
-
-### `get-entry-tree`
-获取用户有权限查看的目录树,返回的json中包含id，templateId等，其中templateId是发布挂出的任务id，即publishTaskId。
-
-**参数:** 无
-
-### `get-published-subject-resources`
-根据目录节点的 templateId（即 publishTaskId）查询挂出的分析主题挂出的资源（如组件id和仪表板id）。
-
-**参数:**
-- `taskId` (string, 必填): 目录节点的 templateId 或发布任务的 publishTaskId
-
-### `get-widget-data`
-获取特定仪表板中具体组件的数据。
-
-**参数:**
-- `reportId` (string, 必填): 仪表板/报表 ID
-- `widgetId` (string, 必填): 组件 ID
-- `responseParams` (object, 选填): 透传给 `FineBIQueryDataSDK.create(...)` 的响应参数对象（例如 `fine_auth_token`、`scripts` 等）
-
-### `get-dashboard-style`
-获取仪表板的样式配置。
-
-**参数:**
-- `dashboardId` (string, 必填): 仪表板 ID
-
-### `get-dashboard-design-configure`
-获取仪表板的详细设计配置信息（包含组件布局、组件列表等）。
-
-**参数:**
-- `dashboardId` (string, 必填): 仪表板 ID
-
-### `set-dashboard-style`
-设置仪表板的样式配置。
-
-**参数:**
-- `dashboardId` (string, 必填): 仪表板 ID
-- `payload` (object, 必填): 样式配置对象（JSON）
-
-## 认证错误处理
-
-如果调用任意命令时出现认证失败或 token 过期错误（如 HTTP 401/403、`login failed`、`token expired` 等），请按以下步骤处理：
-1. 提示用户确认 `FINEBI_BASE_URL`、`FINEBI_USERNAME`、`FINEBI_PASSWORD` 是否正确。
-2. 如果使用了 `FINEBI_LIGHT_AUTH_TOKEN`，提示用户检查 token 是否已过期并重新获取。
-3. 可以重新运行 `finebi-cli init` 重新配置连接凭证。
-
-## 常见工作流 (Common Workflows)
-
-### 使用/获取数据集数据
-如果需要提取某个表的数据，标准的工作流程是：
-1. **第一步**：先使用 `query-dataset` 命令，查到表信息，在返回结果中获取对应表的 ID（通常为 `name` 字段，即表的原始名称/ID）。
-2. **第二步**：调用 `preview-dataset-data` 命令，传入查到的 ID，从而获取该数据集的具体数据记录。
-
-### 导出 FineBI 仪表板为 PDF，然后分析导出的 PDF 文件生成报告 ⚠️
-
-⚠️ **重要警告**：分析 PDF 时**必须且只能**使用 OpenClaw 内置的 `pdf` 工具！禁止使用任何非 OpenClaw 内置工具（如第三方 PDF 解析库、`cat` 命令、`read_file` 工具等）读取 PDF 内容！
-
-**工作流程**：
-1. **导出 PDF**：调用 `export-dashboard-pdf` 命令，传入 `reportId` 参数，获取导出的 PDF 文件路径。
-2. **复制到工作空间**：如果 PDF 在临时目录（如 `/tmp/` 或 `AppData/Local/Temp/`），必须先复制到工作空间目录（通常是 workspace）。
-   - Windows: `Copy-Item <源路径> -Destination "C:\Users\dailer\.openclaw\workspace\"`
-   - Linux/Mac: `cp <源路径> ~/workspace/`
-3. **使用内置 pdf 工具分析** 📌：调用 `pdf` 工具读取 PDF 文件（传入本地文件路径），提取图表和数据内容。
-4. **生成报告**：基于 PDF 内容生成 Markdown 格式的分析报告，包含核心主题、关键数据、趋势洞察和业务建议，最后发送给用户。
-
-
-## 迁移的工具列表 (Migrated Tools)
-
-### `data-table-preview`
-Migrated tool: dataTablePreview
-
-**参数:**
-- `tableName`: 必填
-
-### `data-table-structure`
-Migrated tool: dataTableStructure
-
-**参数:**
-- `tableName`: 必填
-
-### `data-model`
-Migrated tool: dataModel
-
-**参数:**
-- `modelId`: 必填
-
-### `data-query`
-Migrated tool: dataQuery
-
-**参数:**
-- `body`: 必填
-
-### `data-preview`
-Migrated tool: dataPreview
-
-**参数:**
-- `body`: 必填
-
-### `data-search-tables`
-Migrated tool: dataSearchTables
-
-**参数:**
-- `body`: 必填
-
-### `data-search-fields`
-Migrated tool: dataSearchFields
-
-**参数:**
-- `body`: 必填
-
-### `data-field-data`
-Migrated tool: dataFieldData
-
-**参数:**
-- `body`: 必填
-
-### `data-field-range`
-Migrated tool: dataFieldRange
-
-**参数:**
-- `body`: 必填
-
-### `spider-status`
-Migrated tool: spiderStatus
-
-**参数:**
-- `taskInstanceId`: 必填
-
-### `subject-folders`
-Migrated tool: subjectFolders
-
-**参数:**
-- 无
-
-### `subject-tree-root`
-Migrated tool: subjectTreeRoot
-
-**参数:**
-- 无
-
-### `subject-folder`
-Migrated tool: subjectFolder
-
-**参数:**
-- `folderId`: 必填
-
-### `subject-tree`
-Migrated tool: subjectTree
-
-**参数:**
-- `folderId`: 必填
-
-### `subject-crumb`
-Migrated tool: subjectCrumb
-
-**参数:**
-- `folderId`: 必填
-
-### `subject-content`
-Migrated tool: subjectContent
-
-**参数:**
-- `subjectId`: 必填
-
-### `subject-reports`
-Migrated tool: subjectReports
-
-**参数:**
-- `subjectId`: 必填
-
-### `subject-get`
-Migrated tool: subjectGet
-
-**参数:**
-- `subjectIds`: 必填
-
-### `subject-search`
-Migrated tool: subjectSearch
-
-**参数:**
-- `body`: 必填
-
-### `subject-groups-search`
-Migrated tool: subjectGroupsSearch
-
-**参数:**
-- `body`: 必填
-
-### `subject-consanguinity`
-Migrated tool: subjectConsanguinity
-
-**参数:**
-- `subjectId`: 必填
-
+1. 先判断是“看板类”还是“数据集类”
+2. 如果更像看板消费场景，优先走 `dashboard-briefing`
+3. 如果更像数据落库或数据搬运场景，优先走 `sync-to-bitable`
+4. 如果仍不明确，只追问一个关键问题，不要同时追问多个问题
