@@ -16,6 +16,14 @@ import { type FineBIConfig, type ExportResult, FineBIErrorCode } from "./types.j
 
 let cachedConfig: FineBIConfig | null = null;
 
+function getEnvSearchPaths(currentFileDir: string): string[] {
+  return [
+    path.join(process.cwd(), ".env"),
+    path.join(currentFileDir, "../.env"),
+    path.join(currentFileDir, "../../.env"),
+  ];
+}
+
 /**
  * Clear the cached configuration.
  */
@@ -28,11 +36,16 @@ export async function getConfig(): Promise<FineBIConfig> {
     return cachedConfig;
   }
 
-  // Load from the project root .env
+  // Load from the current working directory first, then package root, then workspace root.
   if (import.meta.url) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    dotenv.config({ path: path.join(__dirname, "../.env") });
+    for (const envPath of getEnvSearchPaths(__dirname)) {
+      if (fs.existsSync(envPath)) {
+        dotenv.config({ path: envPath });
+        break;
+      }
+    }
   }
 
   const baseUrl = process.env["FINEBI_BASE_URL"];

@@ -16,11 +16,11 @@ triggers:
 metadata:
   clawdbot:
     emoji: "📊"
-    requires:
-      bins: ["node", "finebi-cli"]
-      env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD", "FINEBI_LIGHT_AUTH_TOKEN]
     primaryEnv: "FINEBI_BASE_URL"
     install: "npm list -g finebi-openclaw-skill || npm install -g finebi-openclaw-skill"
+    requires:
+      bins: ["node", "finebi-cli"]
+      env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD", "FINEBI_LIGHT_AUTH_TOKEN"]
 runner: cli
 entrypoint: finebi-cli
 ---
@@ -38,11 +38,11 @@ entrypoint: finebi-cli
 
 **参数:** 无
 
-### `subject-groups-search`
-根据关键字搜索主题和文件夹。
+### `search-my-datasets`
+搜索"我的分析"中的数据集。
 
 **参数:**
-- `keyword` (string, 选填):搜索关键字
+- `keyword` (string, 选填): 搜索关键字
 - `pageIndex` (number, 选填): 分页索引，默认为 1
 - `searchType` (number, 选填): 搜索类型，默认为 3
 - `filterType` (number, 选填): 过滤类型，默认为 1
@@ -127,6 +127,33 @@ entrypoint: finebi-cli
 **参数:**
 - `reportId` (string, 必填): 仪表板/报表 ID
 - `widgetId` (string, 必填): 组件 ID
+- `responseParams` (object, 选填): 透传给 `FineBIQueryDataSDK.create(...)` 的响应参数对象（例如 `fine_auth_token`、`scripts` 等）
+
+### `get-dashboard-style`
+获取仪表板的样式配置。
+
+**参数:**
+- `dashboardId` (string, 必填): 仪表板 ID
+
+### `get-dashboard-design-configure`
+获取仪表板的详细设计配置信息（包含组件布局、组件列表等）。
+
+**参数:**
+- `dashboardId` (string, 必填): 仪表板 ID
+
+### `set-dashboard-style`
+设置仪表板的样式配置。
+
+**参数:**
+- `dashboardId` (string, 必填): 仪表板 ID
+- `payload` (object, 必填): 样式配置对象（JSON）
+
+## 认证错误处理
+
+如果调用任意命令时出现认证失败或 token 过期错误（如 HTTP 401/403、`login failed`、`token expired` 等），请按以下步骤处理：
+1. 提示用户确认 `FINEBI_BASE_URL`、`FINEBI_USERNAME`、`FINEBI_PASSWORD` 是否正确。
+2. 如果使用了 `FINEBI_LIGHT_AUTH_TOKEN`，提示用户检查 token 是否已过期并重新获取。
+3. 可以重新运行 `finebi-cli init` 重新配置连接凭证。
 
 ## 常见工作流 (Common Workflows)
 
@@ -137,7 +164,7 @@ entrypoint: finebi-cli
 
 ### 导出 FineBI 仪表板为 PDF，然后分析导出的 PDF 文件生成报告 ⚠️
 
-⚠️ **重要警告**：分析 PDF 时**必须且只能**使用 OpenClaw 内置的 `pdf` 工具！禁止使用任何其他方式读取 PDF 内容！
+⚠️ **重要警告**：分析 PDF 时**必须且只能**使用 OpenClaw 内置的 `pdf` 工具！禁止使用任何非 OpenClaw 内置工具（如第三方 PDF 解析库、`cat` 命令、`read_file` 工具等）读取 PDF 内容！
 
 **工作流程**：
 1. **导出 PDF**：调用 `export-dashboard-pdf` 命令，传入 `reportId` 参数，获取导出的 PDF 文件路径。

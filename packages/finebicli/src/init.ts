@@ -2,7 +2,6 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
-import { fileURLToPath } from "node:url";
 
 /**
  * Interactively configure FineBI connection by prompting the user
@@ -25,9 +24,7 @@ FINEBI_PASSWORD=${password.trim()}
 FINEBI_LIGHT_AUTH_TOKEN=${lightAuthToken.trim()}
 `;
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const envPath = path.join(__dirname, "../.env");
+    const envPath = path.join(process.cwd(), ".env");
     fs.writeFileSync(envPath, envContent, "utf-8");
 
     console.log(`\nSuccessfully saved configuration to ${envPath}`);

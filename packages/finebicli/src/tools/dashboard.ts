@@ -9,7 +9,8 @@ import type {
   ToolResult,
   DashboardStyleData,
 } from "../types.js";
-import { fineBIAuthFetch } from "../helpers.js";
+import { FineBIQueryDataSDK } from "finebi-querydata-sdk";
+import { fineBIAuthFetch, getConfig } from "../helpers.js";
 import { enterSubjectEdit } from "./subject.js";
 
 /**
@@ -61,23 +62,45 @@ export async function getDashboardsBySubject(
  * GET /v5/api/dashboard/report/widget/data
  * 
  * @param reportId The report/dashboard ID
- * @param widgetId The real widget ID
+ * @param widgetId The reportWidgets wId
  */
 export async function getWidgetData(
   reportId: string,
-  widgetId: string
+  wId: string,
+  responseParams?: Record<string, unknown>
 ): Promise<ToolResult<any>> {
+  let sdk: FineBIQueryDataSDK | null = null;
   try {
-    const url = `/v5/api/dashboard/report/widget/data?reportId=${encodeURIComponent(reportId)}&widgetId=${encodeURIComponent(widgetId)}`;
-    const data = await fineBIAuthFetch(url, {
-      method: "GET",
-    });
+    const config = await getConfig();
+
+    const defaultScripts = [
+      "./node_modules/finebi-querydata-sdk/assets/fineui-base.min.js",
+      "./node_modules/finebi-querydata-sdk/assets/BICst.js",
+      "./node_modules/finebi-querydata-sdk/assets/i18n.js",
+      "./node_modules/finebi-querydata-sdk/assets/static.min.js",
+    ];
+
+    const sdkInitOptions = {
+      dashboardId: reportId,
+      finebiServerUrl: config.baseUrl,
+      scripts: defaultScripts,
+      ...(responseParams ?? {}),
+    } as any;
+
+    sdk = await FineBIQueryDataSDK.create(sdkInitOptions);
+    const data = await sdk.query.getWidgetData(wId);
+
+    console.log("Widget Data:", data);
     return { success: true, data };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
     };
+  } finally {
+    if (sdk) {
+      sdk.destroy();
+    }
   }
 }
 

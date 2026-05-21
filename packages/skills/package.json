@@ -1,0 +1,21 @@
+{
+  "name": "skills",
+  "version": "0.2.16",
+  "description": "FineBI skill markdown assets for OpenClaw-style workflows.",
+  "files": [
+    "SKILL.md",
+    "skills",
+    "README.md"
+  ],
+  "keywords": [
+    "finebi",
+    "skills",
+    "openclaw"
+  ],
+  "author": "zsmj1994",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

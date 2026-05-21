@@ -160,8 +160,19 @@ program
   .description("Get data for a specific widget inside a dashboard")
   .requiredOption("-r, --report-id <id>", "Dashboard/Report ID")
   .requiredOption("-w, --widget-id <id>", "Widget ID")
+  .option("--response-params <json>", "Response params JSON to pass through to SDK init")
   .action(async (options) => {
-    const res = await getWidgetData(options.reportId, options.widgetId);
+    let responseParams: Record<string, unknown> | undefined;
+    if (options.responseParams) {
+      try {
+        responseParams = JSON.parse(options.responseParams);
+      } catch {
+        console.error("Error: --response-params must be valid JSON");
+        process.exit(1);
+      }
+    }
+
+    const res = await getWidgetData(options.reportId, options.widgetId, responseParams);
     handleResult(res);
   });
 
