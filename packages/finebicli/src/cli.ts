@@ -64,8 +64,9 @@ program
 program
   .command("get-entry-tree")
   .description("Get the directory tree the user has permission to view")
-  .action(async () => {
-    const res = await getEntryTree();
+  .option("-k, --keyword <keyword>", "Filter nodes by text keyword")
+  .action(async (options) => {
+    const res = await getEntryTree(options.keyword);
     handleResult(res);
   });
 

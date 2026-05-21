@@ -7,13 +7,18 @@ import type { ToolResult, EntryTreeNode } from "../types.js";
  * 
  * @returns An array of directory tree nodes.
  */
-export async function getEntryTree(): Promise<ToolResult<EntryTreeNode[]>> {
+export async function getEntryTree(keyword?: string): Promise<ToolResult<EntryTreeNode[]>> {
   try {
     const url = "/v10/view/entry/tree";
     const data = await fineBIAuthFetch(url, {
       method: "GET",
     }) as { data: EntryTreeNode[] };
-    return { success: true, data: data.data.filter(node => node.entryType === 201) };
+    let nodes = data.data.filter(node => node.entryType === 201);
+    if (keyword) {
+      const lower = keyword.toLowerCase();
+      nodes = nodes.filter(node => node.text?.toLowerCase().includes(lower));
+    }
+    return { success: true, data: nodes };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
