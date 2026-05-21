@@ -1,6 +1,6 @@
 {
   "name": "finebi-cli",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "description": "Command-line tools for FineBI data analysis, exports, and dashboard workflows.",
   "type": "module",
   "main": "dist/index.js",
