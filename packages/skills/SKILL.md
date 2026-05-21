@@ -15,7 +15,7 @@ metadata:
     install: "npm list -g finebi-cli || npm install -g finebi-cli"
     requires:
       bins: ["node", "finebi-cli"]
-      env: ["FINEBI_BASE_URL", "FINEBI_USERNAME", "FINEBI_PASSWORD", "FINEBI_LIGHT_AUTH_TOKEN"]
+      env: ["FINEBI_BASE_URL", "FINEBI_LIGHT_AUTH_TOKEN"]
 runner: cli
 entrypoint: finebi-cli
 ---

@@ -12,8 +12,8 @@ export async function getEntryTree(): Promise<ToolResult<EntryTreeNode[]>> {
     const url = "/v10/view/entry/tree";
     const data = await fineBIAuthFetch(url, {
       method: "GET",
-    }) as EntryTreeNode[];
-    return { success: true, data };
+    }) as { data: EntryTreeNode[] };
+    return { success: true, data: data.data.filter(node => node.entry === 201) };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

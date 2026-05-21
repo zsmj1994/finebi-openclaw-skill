@@ -13,12 +13,7 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "paths": {
-      "finebi-querydata-sdk": [
-        "../querydata-sdk/src/index.ts"
-      ]
-    }
+    "sourceMap": true
   },
   "include": [
     "src/**/*"
