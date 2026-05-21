@@ -38,6 +38,12 @@ pnpm build
 pnpm pack
 ```
 
+## Release note
+
+- `finebi-cli` consumes `finebi-querydata-sdk` as a normal npm dependency at publish time.
+- In this workspace the dependency is declared as `workspace:*`, but `pnpm pack` and `pnpm publish` rewrite it to the current published SDK version range.
+- If the CLI depends on a new SDK release, publish `finebi-querydata-sdk` first and then publish `finebi-cli`.
+
 ## Available CLI commands
 
 - `init`

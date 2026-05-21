@@ -3,15 +3,26 @@
   "private": true,
   "packageManager": "pnpm@9.12.1",
   "scripts": {
-    "build": "pnpm --filter finebi-cli build",
-    "typecheck": "pnpm --filter finebi-cli typecheck",
+    "build": "pnpm run build:sdk && pnpm run build:cli",
+    "build:sdk": "pnpm -C packages/querydata-sdk build",
+    "build:cli": "pnpm -C packages/finebicli build",
+    "typecheck": "pnpm run typecheck:sdk && pnpm run typecheck:cli",
+    "typecheck:sdk": "pnpm -C packages/querydata-sdk typecheck",
+    "typecheck:cli": "pnpm -C packages/finebicli typecheck",
     "test": "pnpm --filter finebi-cli test",
     "test:coverage": "pnpm --filter finebi-cli test:coverage",
     "clean": "pnpm --filter finebi-cli clean",
+    "release:check:sdk": "pnpm run typecheck:sdk && pnpm run build:sdk && pnpm run pack:sdk",
+    "release:check:cli": "pnpm -C packages/finebicli test && pnpm run typecheck:cli && pnpm run build:cli && pnpm run pack:cli",
+    "release:check:core": "pnpm run release:check:sdk && pnpm run release:check:cli",
+    "pack:sdk": "pnpm -C packages/querydata-sdk pack",
     "pack:cli": "pnpm -C packages/finebicli pack",
     "pack:skills": "pnpm -C packages/skills pack",
-    "pack:all": "pnpm run pack:cli && pnpm run pack:skills",
+    "pack:all": "pnpm run pack:sdk && pnpm run pack:cli && pnpm run pack:skills",
+    "publish:sdk": "pnpm -C packages/querydata-sdk publish",
     "publish:cli": "pnpm -C packages/finebicli publish",
-    "publish:skills": "pnpm -C packages/skills publish"
+    "publish:skills": "pnpm -C packages/skills publish",
+    "publish:core": "pnpm run publish:sdk && pnpm run publish:cli",
+    "publish:all": "pnpm run publish:sdk && pnpm run publish:cli && pnpm run publish:skills"
   }
 }
