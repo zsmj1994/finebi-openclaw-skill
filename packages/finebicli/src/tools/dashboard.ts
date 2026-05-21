@@ -73,17 +73,9 @@ export async function getWidgetData(
   try {
     const config = await getConfig();
 
-    const defaultScripts = [
-      "./node_modules/finebi-querydata-sdk/assets/fineui-base.min.js",
-      "./node_modules/finebi-querydata-sdk/assets/BICst.js",
-      "./node_modules/finebi-querydata-sdk/assets/i18n.js",
-      "./node_modules/finebi-querydata-sdk/assets/static.min.js",
-    ];
-
     const sdkInitOptions = {
       dashboardId: reportId,
       finebiServerUrl: config.baseUrl,
-      scripts: defaultScripts,
       ...(responseParams ?? {}),
     } as any;
 
