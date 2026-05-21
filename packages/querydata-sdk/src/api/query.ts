@@ -10,16 +10,19 @@ export class QueryAPI {
   }
 
   /**
-   * 閺屻儴顕楁禒顏囥€冮弶鎸庢殶閹?   */
+   * 查询仪表板数据
+   */
   public async getDashboardData(options: QueryOptions): Promise<any> {
     const { window } = this.context;
 
-    // 閸嬪洩顔?FineBI 閻ㄥ嫬澧犵粩顖氼嚠鐠炩剝瀵曟潪钘夋躬 window.BI 娑?    if (!window.BI) {
+    // 假设 FineBI 的前端对象挂载在 window.BI 上
+    if (!window.BI) {
       throw new Error('FineBI SDK (window.BI) not found in the simulated environment.');
     }
 
     try {
-      // 濡剝瀚欓崜宥囶伂鐠嬪啰鏁ょ紒鍕閼惧嘲褰囬弫鐗堝祦閻ㄥ嫰鈧槒绶敍宀冪箹闁插矂娓剁憰浣规禌閹广垺鍨氶惇鐔风杽閻?FineBI 閼惧嘲褰囬弫鐗堝祦閻ㄥ嫭鏌熷▔?      // 娓氬顩ч敍?return await window.BI.Dashboard.getData(options);
+      // 模拟前端调用组件获取数据的逻辑，这里需要替换成真实的 FineBI 获取数据的方法
+      // 例如： return await window.BI.Dashboard.getData(options);
       console.log(`Querying data for dashboard: ${options.dashboardId}`);
       return { success: true, data: [] };
     } catch (error) {
@@ -29,7 +32,8 @@ export class QueryAPI {
   }
 
   /**
- * 閺屻儴顕楁禒顏囥€冮弶璺ㄧ矋娴犺埖鏆熼幑? */
+ * 查询仪表板组件数据
+ */
   public async getWidgetData(wId: string): Promise<any> {
     const { window } = this.context;
     const BI = window.BI;
@@ -45,7 +49,7 @@ export class QueryAPI {
     const reportId = templateHelper.getReportId();
     const token = process.env.FINE_AUTH_TOKEN;
     if (!token) {
-      throw new Error('[FineBI SDK] 缂傚搫鐨悳顖氼暔閸欐﹢鍣?FINE_AUTH_TOKEN');
+      throw new Error('[FineBI SDK] 缺少环境变量 FINE_AUTH_TOKEN');
     }
     const url = `${serverUrl}/v5/design/widget/data?reportId=${reportId}&fine_auth_token=${token}`;
 

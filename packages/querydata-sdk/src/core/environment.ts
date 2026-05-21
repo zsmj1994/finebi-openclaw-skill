@@ -78,6 +78,13 @@ export async function createBrowserEnvironment(options: EnvironmentOptions) {
     });
   });
 
+  // 捕获 jsdom 内脚本运行时错误（如 fineui 内部的 eval/new Function 求值失败），
+  // 防止 reportException 在无监听器时将错误往外抛导致进程退出
+  (window as any).addEventListener('error', (event: any) => {
+    console.warn('[JSDOM Script Error]', event.message ?? event);
+    event.preventDefault?.();
+  });
+
   // ========== 1. 提取并注入环境变配置 ==========
   const dashboardEnv = await initDashboardDesignConfigure(options.dashboardId, options.finebiServerUrl);
   console.log(`[FineBI SDK] 仪表板环境变量提取完成。`);
@@ -132,7 +139,12 @@ export async function initDashboardDesignConfigure(dashboardId: string, serverUr
   console.log(`[FineBI SDK] 正在获取仪表板配置信息`);
   console.log(`[FineBI SDK] 正在获取仪表板基础配置信息`);
 
-  const [res, basicRes] = await Promise.all([fetch(url), fetch(basicUrl)]);
+  let res: Response, basicRes: Response;
+  try {
+    [res, basicRes] = await Promise.all([fetch(url), fetch(basicUrl)]);
+  } catch (err) {
+    throw new Error(`[FineBI SDK] 网络请求失败，请检查 FINEBI_BASE_URL、FINE_AUTH_TOKEN 和网络连通性: ${(err as Error).message}`);
+  }
   if (!res.ok) {
     throw new Error(`请求仪表板配置信息失败: ${res.status} ${res.statusText}`);
   }
@@ -223,7 +235,7 @@ export async function loadDependencies(window: any, scripts: string[], serverUrl
     try {
       let code = '';
       const isUrl = scriptPath.startsWith('http://') || scriptPath.startsWith('https://') || scriptPath.startsWith('//');
-      const isServerConfigured = serverUrl && !scriptPath.startsWith('./') && (serverUrl.startsWith('http://') || serverUrl.startsWith('https://'));
+      const isServerConfigured = serverUrl && !path.isAbsolute(scriptPath) && !scriptPath.startsWith('./') && (serverUrl.startsWith('http://') || serverUrl.startsWith('https://'));
 
       if (isUrl) {
         const targetUrl = scriptPath.startsWith('//') ? `http:${scriptPath}` : scriptPath;

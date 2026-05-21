@@ -2,8 +2,8 @@
   "name": "finebi-querydata-sdk",
   "version": "1.0.0",
   "description": "SDK for querying FineBI dashboard data and applying filters in a simulated browser environment.",
+  "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
@@ -13,13 +13,11 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format esm --dts",
     "typecheck": "tsc --noEmit",
     "clean": "if (Test-Path dist) { Remove-Item -Recurse -Force dist }",
     "start": "ts-node src/index.ts",
