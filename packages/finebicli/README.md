@@ -40,6 +40,22 @@ This means:
 - user-level config works from any directory
 - a project-local `.env` can still override it when needed
 
+There are two common setup patterns:
+
+1. Standalone CLI usage
+
+```bash
+finebi-cli init
+```
+
+This writes config to `~/.finebi-cli/.env`, and the CLI can then be used from any directory.
+
+2. Running inside a host such as OpenClaw
+
+- the user can configure `FINEBI_BASE_URL` and authentication variables in the host tool's `.env`
+- if the host injects those variables into the `finebi-cli` process, the CLI will use them automatically
+- in that case, `finebi-cli init` is optional rather than required
+
 ## Release checks
 
 Before publishing this package, run:
