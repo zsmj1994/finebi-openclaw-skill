@@ -20,7 +20,7 @@ export async function getDashboardUserInfo(): Promise<ToolResult<DashboardUserIn
       "/v5/api/dashboard/user/info"
     );
     const result = response as { data: DashboardUserInfo };
-    console.log(response)
+    console.log(response);
     return { success: true, data: result.data };
   } catch (error) {
     return {
@@ -53,12 +53,10 @@ export async function getDashboardsBySubject(
   }
 }
 
-
-
 /**
  * Get widget data for a dashboard report.
  * GET /v5/api/dashboard/report/widget/data
- * 
+ *
  * @param reportId The report/dashboard ID
  * @param widgetId The reportWidgets wId
  */
@@ -123,7 +121,7 @@ export async function getDashboardDesignConfigure(
       try {
         designConfigure = JSON.parse(raw.designConfigure);
       } catch (e) {
-        throw new Error(`解析 designConfigure 失败: ${e}`);
+        throw new Error(`瑙ｆ瀽 designConfigure 澶辫触: ${e}`);
       }
     }
 
@@ -142,5 +140,3 @@ export async function getDashboardDesignConfigure(
     };
   }
 }
-
-
