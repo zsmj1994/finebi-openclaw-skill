@@ -13,8 +13,6 @@ export {
   getDashboardsBySubject,
   getWidgetData,
   getDashboardDesignConfigure,
-  getDashboardStyle,
-  setDashboardStyle,
 } from "./dashboard.js";
 
 export {

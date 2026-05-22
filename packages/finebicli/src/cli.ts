@@ -16,8 +16,6 @@ import {
   getEntryTree,
   getPublishedSubjectResources,
   subjectGroupsSearch,
-  getDashboardStyle,
-  setDashboardStyle,
   getDashboardDesignConfigure,
 } from "./tools/index.js";
 import { runInit } from "./init.js";
@@ -254,37 +252,11 @@ program
 
 
 program
-  .command("get-dashboard-style")
-  .description("Get dashboard style configuration")
-  .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
-  .action(async (options) => {
-    const res = await getDashboardStyle(options.dashboardId);
-    handleResult(res);
-  });
-
-program
   .command("get-dashboard-design-configure")
   .description("获取仪表板详细配置信息")
   .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
   .action(async (options) => {
     const res = await getDashboardDesignConfigure(options.dashboardId);
-    handleResult(res);
-  });
-
-program
-  .command("set-dashboard-style")
-  .description("Set dashboard style configuration")
-  .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
-  .requiredOption("-p, --payload <json>", "Style payload as JSON string")
-  .action(async (options) => {
-    let payload;
-    try {
-      payload = JSON.parse(options.payload);
-    } catch (e) {
-      console.error("Error: payload must be a valid JSON string");
-      process.exit(1);
-    }
-    const res = await setDashboardStyle(options.dashboardId, payload);
     handleResult(res);
   });
 

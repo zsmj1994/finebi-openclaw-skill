@@ -9,24 +9,6 @@ export class QueryAPI {
     this.templateHelper = templateHelper;
   }
 
-  /**
-   * Query dashboard data.
-   */
-  public async getDashboardData(options: QueryOptions): Promise<any> {
-    const { window } = this.context;
-
-    if (!window.BI) {
-      throw new Error('FineBI SDK (window.BI) not found in the simulated environment.');
-    }
-
-    try {
-      console.log(`Querying data for dashboard: ${options.dashboardId}`);
-      return { success: true, data: [] };
-    } catch (error) {
-      console.error('Error querying dashboard data:', error);
-      throw error;
-    }
-  }
 
   /**
    * Query widget data.
@@ -65,6 +47,8 @@ export class QueryAPI {
       throw new Error(`Request widget data failed: ${response.status} ${response.statusText}. ${errorText}`);
     }
 
-    return response.json();
+    const json = await response.json();
+    const { perform, ...rest } = json;
+    return rest;
   }
 }
