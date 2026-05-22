@@ -14,14 +14,10 @@ export async function runInit() {
     console.log("This will guide you through setting up your FineBI connection details.\n");
 
     const baseUrl = await rl.question("FineBI Base URL (e.g., https://bi.example.com): ");
-    const username = await rl.question("FineBI Username: ");
-    const password = await rl.question("FineBI Password: ");
-    const lightAuthToken = await rl.question("FineBI Light Auth Token (optional, press Enter to skip): ");
+    const accessToken = await rl.question("FineBI Access Token: ");
 
     const envContent = `FINEBI_BASE_URL=${baseUrl.trim()}
-FINEBI_USERNAME=${username.trim()}
-FINEBI_PASSWORD=${password.trim()}
-FINEBI_LIGHT_AUTH_TOKEN=${lightAuthToken.trim()}
+FINE_ACCESS_TOKEN=${accessToken.trim()}
 `;
 
     const envPath = getDefaultEnvPath();

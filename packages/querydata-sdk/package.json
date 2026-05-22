@@ -7,7 +7,6 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "assets",
     "README.md"
   ],
   "exports": {
@@ -17,8 +16,9 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts",
-    "typecheck": "tsc --noEmit",
+    "generate:embedded-assets": "node ./scripts/generate-embedded-assets.mjs",
+    "build": "pnpm run generate:embedded-assets && tsup src/index.ts --format esm --dts",
+    "typecheck": "pnpm run generate:embedded-assets && tsc --noEmit",
     "clean": "if (Test-Path dist) { Remove-Item -Recurse -Force dist }",
     "start": "ts-node src/index.ts",
     "prepack": "pnpm run build",

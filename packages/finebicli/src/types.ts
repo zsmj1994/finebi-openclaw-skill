@@ -5,17 +5,7 @@
 /** Configuration for connecting to a FineBI instance */
 export interface FineBIConfig {
   baseUrl: string;
-  username?: string;
-  password?: string;
-  lightAuthToken?: string;
-  fineAuthToken?: string;
-}
-
-/** Known error codes from FineBI API */
-export enum FineBIErrorCode {
-  TOKEN_EXPIRED = "21300001",
-  LOGIN_INFO_NULL = "21300014",
-  LOGIN_FAILED = "21300007",
+  accessToken: string;
 }
 
 /** A FineBI dataset descriptor */
@@ -35,13 +25,6 @@ export interface QueryResult {
   dataset: string;
   rows: DataRow[];
   total: number;
-}
-
-
-/** Result of a successful login */
-export interface LoginResult {
-  /** Authentication token returned by FineBI */
-  accessToken: string;
 }
 
 /** Tool call result wrapper */

@@ -20,10 +20,7 @@ finebi-cli query-dataset -k "Sales"
 The CLI reads these environment variables:
 
 - `FINEBI_BASE_URL`
-- `FINEBI_USERNAME`
-- `FINEBI_PASSWORD`
-- `FINEBI_LIGHT_AUTH_TOKEN` (optional)
-- `FINE_AUTH_TOKEN` (optional)
+- `FINE_ACCESS_TOKEN`
 
 You can create them with `finebi-cli init` or by writing a `.env` file manually.
 
@@ -52,7 +49,7 @@ This writes config to `~/.finebi-cli/.env`, and the CLI can then be used from an
 
 2. Running inside a host such as OpenClaw
 
-- the user can configure `FINEBI_BASE_URL` and authentication variables in the host tool's `.env`
+- the user can configure `FINEBI_BASE_URL` and `FINE_ACCESS_TOKEN` in the host tool's `.env`
 - if the host injects those variables into the `finebi-cli` process, the CLI will use them automatically
 - in that case, `finebi-cli init` is optional rather than required
 

@@ -15,7 +15,7 @@ metadata:
     install: "npm install -g finebi-cli"
     requires:
       bins: ["node", "finebi-cli"]
-      env: ["FINEBI_BASE_URL", "FINEBI_LIGHT_AUTH_TOKEN"]
+      env: ["FINEBI_BASE_URL", "FINE_ACCESS_TOKEN"]
 runner: cli
 entrypoint: finebi-cli
 ---
@@ -50,7 +50,7 @@ npm install -g finebi-cli
 
 2. 在 OpenClaw 等宿主工具中使用
 
-- 用户可以直接把 `FINEBI_BASE_URL`、`FINEBI_LIGHT_AUTH_TOKEN` 等变量配置到宿主工具自己的 `.env`
+- 用户可以直接把 `FINEBI_BASE_URL`、`FINE_ACCESS_TOKEN` 配置到宿主工具自己的 `.env`
 - 如果宿主在启动 `finebi-cli` 时会自动带上这些环境变量，skill 就可以直接复用它们
 - 这种情况下不一定需要单独运行 `finebi-cli init`
 
@@ -60,7 +60,7 @@ npm install -g finebi-cli
 
 1. 检查 `finebi-cli` 是否可执行。
 2. 检查 `FINEBI_BASE_URL` 是否已配置。
-3. 检查认证信息是否已配置，例如 `FINEBI_LIGHT_AUTH_TOKEN`。
+3. 检查认证信息是否已配置，例如 `FINE_ACCESS_TOKEN`。
 
 如果 `finebi-cli` 不可用：
 

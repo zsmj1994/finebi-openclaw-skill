@@ -1,33 +1,45 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as os from 'os';
 import * as path from 'path';
-import * as dotenv from 'dotenv';
-import axios from 'axios';
 
-// Mock dependencies
+const axiosMock = vi.hoisted(() => {
+  const fn = vi.fn();
+  Object.assign(fn, {
+    get: vi.fn(),
+  });
+  return fn;
+});
+
 vi.mock('dotenv', () => ({
   config: vi.fn(),
 }));
 
 vi.mock('axios', () => ({
-  default: {
-    get: vi.fn(),
-  },
+  default: axiosMock,
 }));
 
 import {
+  fineBIAuthFetch,
   getConfig,
-  parseResponseData,
-  getToken,
-  resetConfigCache,
   getDefaultConfigDir,
   getDefaultEnvPath,
   getEnvSearchPaths,
+  parseResponseData,
+  resetConfigCache,
 } from '../src/helpers.js';
-import { beforeEach as beforeEachGlobal } from 'vitest';
 
-beforeEachGlobal(() => {
+const ORIGINAL_ENV = { ...process.env };
+
+beforeEach(() => {
   resetConfigCache();
+  vi.clearAllMocks();
+  process.env = { ...ORIGINAL_ENV };
+  delete process.env.FINEBI_BASE_URL;
+  delete process.env.FINE_ACCESS_TOKEN;
+  delete process.env.FINEBI_USERNAME;
+  delete process.env.FINEBI_PASSWORD;
+  delete process.env.FINEBI_LIGHT_AUTH_TOKEN;
+  delete process.env.FINE_AUTH_TOKEN;
 });
 
 describe('Helpers - parseResponseData', () => {
@@ -59,51 +71,20 @@ describe('Helpers - getConfig', () => {
     expect(getDefaultEnvPath()).toBe(path.join(os.homedir(), '.finebi-cli', '.env'));
   });
 
-  it('should throw error if environment variables are missing', async () => {
-    const originalEnv = { ...process.env };
-    process.env.FINEBI_BASE_URL = '';
-    process.env.FINEBI_USERNAME = '';
-    process.env.FINEBI_PASSWORD = '';
-
+  it('should throw error if the new auth environment variables are missing', async () => {
     await expect(getConfig()).rejects.toThrow('Missing required environment variables');
-
-    process.env = originalEnv;
   });
 
-  it('should return config if environment variables are present', async () => {
-    const originalEnv = { ...process.env };
+  it('should return config when FINEBI_BASE_URL and FINE_ACCESS_TOKEN are present', async () => {
     process.env.FINEBI_BASE_URL = 'http://test.com';
-    process.env.FINEBI_USERNAME = 'admin';
-    process.env.FINEBI_PASSWORD = 'password';
-    delete process.env.FINEBI_LIGHT_AUTH_TOKEN;
+    process.env.FINE_ACCESS_TOKEN = 'access-key-123';
 
     const config = await getConfig();
+
     expect(config).toEqual({
       baseUrl: 'http://test.com',
-      username: 'admin',
-      password: 'password',
-      lightAuthToken: undefined
+      accessToken: 'access-key-123',
     });
-
-    process.env = originalEnv;
-  });
-
-  it('should return config with lightAuthToken if present', async () => {
-    const originalEnv = { ...process.env };
-    process.env.FINEBI_BASE_URL = 'http://test.com';
-    process.env.FINEBI_USERNAME = 'admin';
-    process.env.FINEBI_PASSWORD = 'password';
-    process.env.FINEBI_LIGHT_AUTH_TOKEN = 'light-token-123';
-
-    const config = await getConfig();
-    expect(config).toEqual({
-      baseUrl: 'http://test.com',
-      username: 'admin',
-      password: 'password',
-      lightAuthToken: 'light-token-123'
-    });
-
-    process.env = originalEnv;
   });
 
   it('should search the user-level env file after cwd .env', () => {
@@ -113,46 +94,24 @@ describe('Helpers - getConfig', () => {
   });
 });
 
-describe('Helpers - getToken', () => {
-  const config = {
-    baseUrl: 'http://test.com',
-    username: 'admin',
-    password: 'password'
-  };
+describe('Helpers - fineBIAuthFetch', () => {
+  it('should send X-Fine-Access-Key with the configured access token', async () => {
+    process.env.FINEBI_BASE_URL = 'http://test.com';
+    process.env.FINE_ACCESS_TOKEN = 'access-key-123';
+    axiosMock.mockResolvedValueOnce({
+      data: { success: true },
+    });
 
-  it('should use standard login if lightAuthToken is not present', async () => {
-    vi.mocked(axios.get).mockResolvedValueOnce({
-      data: '{"accessToken": "base-token-123"}',
-      config: { params: {} }
-    } as any);
+    await fineBIAuthFetch('/v5/api/dashboard/user/info', { method: 'GET' });
 
-    const token = await getToken(config, true);
-    
-    expect(axios.get).toHaveBeenCalledWith(
-      expect.stringContaining('/login/cross/domain'),
+    expect(axiosMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        params: expect.objectContaining({ fine_username: 'admin' })
+        url: 'http://test.com/v5/api/dashboard/user/info',
+        method: 'GET',
+        headers: expect.objectContaining({
+          'X-Fine-Access-Key': 'access-key-123',
+        }),
       })
     );
-    expect(token).toBe('base-token-123');
-  });
-
-  it('should use light auth if lightAuthToken is present', async () => {
-    const lightConfig = { ...config, lightAuthToken: 'light-123' };
-    
-    vi.mocked(axios.get).mockResolvedValueOnce({
-      data: '{"data": "light-token-456"}',
-      config: { params: {} }
-    } as any);
-
-    const token = await getToken(lightConfig, true);
-    
-    expect(axios.get).toHaveBeenCalledWith(
-      expect.stringContaining('/plugin/fine-light-auth-token/login'),
-      expect.objectContaining({
-        params: expect.objectContaining({ "fine-light-auth-token": 'light-123' })
-      })
-    );
-    expect(token).toBe('light-token-456');
   });
 });

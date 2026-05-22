@@ -1,12 +1,10 @@
-import path from 'path';
 import { createBrowserEnvironment, EnvironmentOptions } from './core/environment';
-
-const assetsDir = path.resolve(import.meta.dirname, '../assets');
 import { QueryAPI } from './api/query';
 import { FilterAPI } from './api/filter';
 import { LinkageAPI } from './api/linkage';
 import { FineBIContext } from './types';
 import { initTemplateHelper } from './helper/templatehelper';
+import { embeddedDependencyScripts } from './generated/embedded-assets';
 
 export class FineBIQueryDataSDK {
   private context: FineBIContext;
@@ -29,12 +27,7 @@ export class FineBIQueryDataSDK {
    */
   public static async create(options: EnvironmentOptions): Promise<FineBIQueryDataSDK> {
     const env = await createBrowserEnvironment({
-      scripts: [
-        path.resolve(assetsDir, 'fineui-base.min.js'),
-        path.resolve(assetsDir, 'BICst.js'),
-        path.resolve(assetsDir, 'i18n.js'),
-        path.resolve(assetsDir, 'static.min.js'),
-      ],
+      inlineScripts: [...embeddedDependencyScripts],
       ...options
     });
     const context: FineBIContext = {

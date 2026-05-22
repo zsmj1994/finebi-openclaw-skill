@@ -10,19 +10,16 @@ export class QueryAPI {
   }
 
   /**
-   * 查询仪表板数据
+   * Query dashboard data.
    */
   public async getDashboardData(options: QueryOptions): Promise<any> {
     const { window } = this.context;
 
-    // 假设 FineBI 的前端对象挂载在 window.BI 上
     if (!window.BI) {
       throw new Error('FineBI SDK (window.BI) not found in the simulated environment.');
     }
 
     try {
-      // 模拟前端调用组件获取数据的逻辑，这里需要替换成真实的 FineBI 获取数据的方法
-      // 例如： return await window.BI.Dashboard.getData(options);
       console.log(`Querying data for dashboard: ${options.dashboardId}`);
       return { success: true, data: [] };
     } catch (error) {
@@ -32,8 +29,8 @@ export class QueryAPI {
   }
 
   /**
- * 查询仪表板组件数据
- */
+   * Query widget data.
+   */
   public async getWidgetData(wId: string): Promise<any> {
     const { window } = this.context;
     const BI = window.BI;
@@ -47,16 +44,18 @@ export class QueryAPI {
     const widgetBeanData = BI.Utils.getWidgetCalculationById(widgetHelper, {});
     const serverUrl = this.context.finebiServerUrl.replace(/\/$/, '');
     const reportId = templateHelper.getReportId();
-    const token = process.env.FINE_AUTH_TOKEN;
-    if (!token) {
-      throw new Error('[FineBI SDK] 缺少环境变量 FINE_AUTH_TOKEN');
-    }
-    const url = `${serverUrl}/v5/design/widget/data?reportId=${reportId}&fine_auth_token=${token}`;
+    const token = process.env.FINE_ACCESS_TOKEN;
 
+    if (!token) {
+      throw new Error('[FineBI SDK] Missing required environment variable FINE_ACCESS_TOKEN');
+    }
+
+    const url = `${serverUrl}/v5/design/widget/data?reportId=${reportId}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Fine-Access-Key': token,
       },
       body: JSON.stringify(widgetBeanData)
     });

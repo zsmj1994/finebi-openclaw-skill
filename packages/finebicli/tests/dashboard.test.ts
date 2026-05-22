@@ -26,8 +26,7 @@ vi.mock('../src/tools/subject.js', () => ({
 vi.mock('../src/helpers.js', () => ({
   getConfig: vi.fn().mockResolvedValue({
     baseUrl: 'http://test.com',
-    username: 'admin',
-    password: 'password',
+    accessToken: 'access-key-123',
   }),
   fineBIAuthFetch: vi.fn(),
 }));
