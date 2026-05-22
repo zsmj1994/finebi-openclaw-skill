@@ -1,6 +1,6 @@
 {
   "name": "finebi-skills",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "description": "Skill markdown assets for FineBI OpenClaw-style workflows.",
   "files": [
     "SKILL.md",
