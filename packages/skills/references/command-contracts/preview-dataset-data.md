@@ -16,7 +16,7 @@ finebi-cli preview-dataset-data -t <tableName> -k "<keyword>" -l 5000 -p 1
 
 - `tableName`：数据集表标识
 - `keyword`：可选，字段过滤关键字
-- `limit`：返回记录条数上限
+- `limit`：返回记录条数上限，一般情况使用5000
 - `pageIndex`：预览页码
 
 ## 返回契约
