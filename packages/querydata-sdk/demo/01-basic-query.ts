@@ -8,35 +8,28 @@ async function main() {
     sdk = await FineBIQueryDataSDK.create({
       dashboardId: '6c5c1c5f38e6409889ca39537275da88',
       finebiServerUrl: 'http://192.168.5.102:38899/webroot/decision',
-      scripts: [
-        // `./assets/pool.js`,
-        `./assets/fineui-base.min.js`,
-        `./assets/BICst.js`,
-        `./assets/i18n.js`,
-        `./assets/static.min.js`,
-      ]
     });
     console.log('环境准备完毕。');
 
     // 1. 测试数据查询能力
     console.log('\n-------- 执行数据查询 --------');
-    // sdk.filter?.applyFilter(
-    //   {
-    //     "widgetId": "c2211126708c2b75",
-    //     "widgetType": 32,
-    //     "filterValue": {
-    //       "type": 1,
-    //       "value": [
-    //         "长期协议"
-    //       ],
-    //       "assist": [
-    //         "服务协议",
-    //         "长期协议",
-    //         "长期协议订单"
-    //       ]
-    //     }
-    //   }
-    // );
+    sdk.filter?.applyFilter(
+      {
+        "widgetId": "ef431839897df1c5",
+        "widgetType": 32,
+        "filterValue": {
+          "type": 1,
+          "value": [
+            "基础财务"
+          ],
+          "assist": [
+            "服务协议",
+            "长期协议",
+            "长期协议订单"
+          ]
+        }
+      }
+    );
 
     sdk.linkage?.applyLinkage('b5c048d05f6a81c9', {
       "dId": "769956e753df1a55",
