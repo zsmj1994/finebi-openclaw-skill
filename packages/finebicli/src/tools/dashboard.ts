@@ -6,6 +6,9 @@ import type {
   DashboardUserInfo,
   GetDashboardsBySubjectParams,
   DashboardSummary,
+  DashboardDesignData,
+  RawDesignConfigure,
+  ReportWidgetEntry,
   ToolResult,
 } from "../types.js";
 import { FineBIQueryDataSDK } from "finebi-querydata-sdk";
@@ -87,7 +90,6 @@ export async function getWidgetData(
 
     const data = await sdk.query.getWidgetData(wId);
 
-    console.log("Widget Data:", data);
     return { success: true, data };
   } catch (error) {
     return {
@@ -109,27 +111,39 @@ export async function getWidgetData(
  */
 export async function getDashboardDesignConfigure(
   dashboardId: string
-): Promise<ToolResult<{ reportId: string; reportName: any; reportWidgets: any; widgets: any }>> {
+): Promise<ToolResult<DashboardDesignData>> {
   try {
     const url = `/v5/design/report/pool/${encodeURIComponent(dashboardId)}/param`;
     const response = await fineBIAuthFetch(url, { method: "GET" }) as { data: any };
 
     const raw = response.data;
 
-    let designConfigure: any = {};
+    let designConfigure: RawDesignConfigure = { reportId: "", reportName: "" };
     if (typeof raw?.designConfigure === "string") {
       try {
-        designConfigure = JSON.parse(raw.designConfigure);
+        designConfigure = JSON.parse(raw.designConfigure) as RawDesignConfigure;
       } catch (e) {
-        throw new Error(`瑙ｆ瀽 designConfigure 澶辫触: ${e}`);
+        throw new Error(`解析 designConfigure 失败: ${e}`);
       }
     }
 
-    const data = {
+    const reportWidgets: Record<string, ReportWidgetEntry> = {};
+
+    Object.entries(designConfigure.reportWidgets || {}).forEach(([wId, widget]) => {
+      const { title, realWidgetId, type } = widget;
+      if (type === 1) {
+        reportWidgets[wId] = {
+          title: designConfigure.widgets?.[realWidgetId]?.name ?? title ?? wId,
+          realWidgetId,
+          type,
+        };
+      }
+    });
+
+    const data: DashboardDesignData = {
       reportId: designConfigure.reportId,
       reportName: designConfigure.reportName,
-      reportWidgets: designConfigure.reportWidgets,
-      widgets: designConfigure.widgets,
+      reportWidgets,
     };
 
     return { success: true, data };

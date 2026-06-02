@@ -193,6 +193,45 @@ export interface TemplateDetailStyle {
   hoverShadow: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// Dashboard design configure types (getDashboardDesignConfigure)
+// ---------------------------------------------------------------------------
+
+/** A single chart/component widget entry in reportWidgets (type === 1) */
+export interface ReportWidgetEntry {
+  /** Display title of the widget */
+  title: string;
+  /** The underlying widget definition ID */
+  realWidgetId: string;
+  /** Widget type, 1 = chart component */
+  type: number;
+}
+
+/** The parsed payload returned by getDashboardDesignConfigure */
+export interface DashboardDesignData {
+  reportId: string;
+  reportName: string;
+  /** Map of wId -> ReportWidgetEntry, only includes type === 1 widgets */
+  reportWidgets: Record<string, ReportWidgetEntry>;
+}
+
+/** Raw designConfigure JSON structure from the pool param API */
+export interface RawDesignConfigure {
+  reportId: string;
+  reportName: string;
+  reportWidgets?: Record<string, {
+    title?: string;
+    realWidgetId: string;
+    type: number;
+    [key: string]: unknown;
+  }>;
+  widgets?: Record<string, {
+    name?: string;
+    [key: string]: unknown;
+  }>;
+  [key: string]: unknown;
+}
+
 export interface DashboardStyleData {
   basePool: TemplateDetailStyle | string;
   designConfigure: any | string;

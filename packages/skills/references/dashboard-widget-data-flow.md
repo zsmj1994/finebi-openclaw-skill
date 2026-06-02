@@ -41,18 +41,18 @@
 finebi-cli get-dashboard-design-configure -d <dashboardId>
 ```
 
+响应信息包括`reportId` `reportName` `reportWidgets`
+
 重点关注：
 
-- `designConfigure.reportWidgets` 和 `designConfigure.widgets`
+- `reportWidgets`
 
-### 第 3 步：检查 `reportWidgets` 和`widgets`
-
-`widgets`是一个对象映射，key为组件的原始id，value为组件的原始配置
+### 第 3 步：检查 `reportWidgets`
 
 `reportWidgets` 是放置在仪表板上的组件的映射：
 
 - 每个 `key` 是组件id，当需要根据组件id查询数据的时候，使用的是此id
-- 每个 `value` 是该组件的配置对象
+- 每个 `value` 是该组件的配置对象，其中`title`属性表示组件的名字
 
 关键字段：
 

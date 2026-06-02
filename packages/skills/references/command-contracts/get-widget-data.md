@@ -7,7 +7,7 @@
 只有在已经明确以下两件事之后，才应该调用这个命令：
 
 - `dashboardId`
-- 从 `get-dashboard-design-configure` 中解析出的 `widgetId`
+- 从 `get-dashboard-design-configure` 中解析出组件的 `widgetId`,
 
 ## CLI
 
