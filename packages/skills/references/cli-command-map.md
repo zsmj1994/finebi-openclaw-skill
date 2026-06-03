@@ -10,7 +10,7 @@
 - `command-contracts/get-published-subject-resources.md`
 - `command-contracts/get-widget-data.md`
 - `command-contracts/search-my-datasets.md`
-- `command-contracts/query-dataset.md`
+- `command-contracts/search-public-dataset.md`
 - `command-contracts/preview-dataset-data.md`
 
 ## 工作流指南
@@ -30,7 +30,6 @@
 - `get-widget-data`
 - `get-dashboard-style`
 - `get-dashboard-design-configure`
-- `set-dashboard-style`
 - `export-dashboard-excel`
 - `export-dashboard-pdf`
 - `export-dashboard-image`
@@ -39,7 +38,7 @@
 
 - `search-my-datasets`
 - `get-publick-datasets-list`
-- `query-dataset`
+- `search-public-dataset`
 - `preview-dataset-data`
 
 ## Subject 与目录相关命令

@@ -39,16 +39,16 @@ finebi-cli search-my-datasets -k "<keyword>" -p 1
 
 ## 语义说明
 
-- 查数据集时应优先使用这个命令，而不是先走 `query-dataset`。
+- 查数据集时应优先使用这个命令，而不是先走 `search-public-dataset`。
 - 这个命令只搜索“我的分析”，不搜索公共数据目录。
-- 如果这里没有找到目标数据集，再回退到 `query-dataset`。
+- 如果这里没有找到目标数据集，再回退到 `search-public-dataset`。
 
 ## 常见后续链路
 
 1. 调用 `search-my-datasets`
 2. 如果找到了目标数据集，提取可作为 `tableName` 的标识
 3. 调用 `preview-dataset-data -t <tableName>`
-4. 如果没找到，再回退到 `query-dataset`
+4. 如果没找到，再回退到 `search-public-dataset`
 
 ## 应该做
 
@@ -57,5 +57,5 @@ finebi-cli search-my-datasets -k "<keyword>" -p 1
 
 ## 不要做
 
-- 当用户意图是“我的数据集”时，不要直接跳到 `query-dataset`
+- 当用户意图是“我的数据集”时，不要直接跳到 `search-public-dataset`
 - 在没有明确数据集标识时，不要直接预览

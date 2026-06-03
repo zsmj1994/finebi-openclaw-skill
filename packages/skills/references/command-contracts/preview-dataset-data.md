@@ -4,7 +4,7 @@
 
 获取指定数据集表的字段元数据和预览记录。
 
-这个命令通常在 `search-my-datasets` 或 `query-dataset` 之后调用，也就是已经确认好目标数据集标识之后。
+这个命令通常在 `search-my-datasets` 或 `search-public-dataset` 之后调用，也就是已经确认好目标数据集标识之后。
 
 ## CLI
 
@@ -54,7 +54,7 @@ finebi-cli preview-dataset-data -t <tableName> -k "<keyword>" -l 5000 -p 1
 ## 常见后续链路
 
 1. 调用 `search-my-datasets`
-2. 如果没找到，再调用 `query-dataset`
+2. 如果没找到，再调用 `search-public-dataset`
 3. 确定目标数据集标识
 4. 调用 `preview-dataset-data`
 5. 用返回的字段元数据选择维度、指标、过滤条件或映射

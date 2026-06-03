@@ -1,4 +1,4 @@
-# query-dataset
+# search-public-dataset
 
 ## 用途
 
@@ -9,7 +9,7 @@
 ## CLI
 
 ```bash
-finebi-cli query-dataset -k "<keyword>" -p 1 -s 150
+finebi-cli search-public-dataset -k "<keyword>" -p 1 -s 150
 ```
 
 ## 输入契约
@@ -39,7 +39,7 @@ finebi-cli query-dataset -k "<keyword>" -p 1 -s 150
 ## 语义说明
 
 - 不要把这个命令当成默认第一步。
-- 查数据集时应优先调用 `search-my-datasets`，只有没找到时再调用 `query-dataset`。
+- 查数据集时应优先调用 `search-my-datasets`，只有没找到时再调用 `search-public-dataset`。
 - 这个命令最重要的输出是后续 `preview-dataset-data` 所需的数据集标识。
 - 在很多 FineBI 返回里，数据集的名称类字段也可能就是表标识。当前仓库工作流默认会把选中的数据集 id 或名称传给 `preview-dataset-data` 作为 `tableName`。
 - 如果有多个候选，应基于展示字段请用户确认，再保留被选中的工作流标识。
@@ -47,7 +47,7 @@ finebi-cli query-dataset -k "<keyword>" -p 1 -s 150
 ## 常见后续链路
 
 1. 调用 `search-my-datasets`
-2. 如果没找到，再调用 `query-dataset`
+2. 如果没找到，再调用 `search-public-dataset`
 3. 找到正确的公共数据集候选
 4. 提取作为 `tableName` 使用的数据集标识
 5. 调用 `preview-dataset-data -t <tableName>`

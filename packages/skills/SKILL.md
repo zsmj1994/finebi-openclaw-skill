@@ -1,7 +1,7 @@
 ---
 name: "finebi-skills"
 description: "FineBI 主技能入口。先识别用户目标，再路由到 dashboard-briefing、report-to-doc、alert-to-task、sync-to-bitable 等子技能。"
-version: 0.2.22
+version: 0.2.25
 author: zsmj1994
 tags:
   - finebi
@@ -142,6 +142,8 @@ npm install -g finebi-cli
 
 - CLI 命令与契约：`references/cli-command-map.md`
 - 仪表板 id 解析：`references/dashboard-id-resolution-flow.md`
+- 仪表板组件取数：`references/dashboard-widget-data-flow.md`
+- 数据集查找与预览：`references/dataset-search-and-preview-flow.md`
 - 路由与拆分约定：`references/skill-routing.md`
 
 ## 无匹配时的降级策略

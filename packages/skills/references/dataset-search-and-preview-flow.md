@@ -19,7 +19,7 @@
 ## 必要命令
 
 - `search-my-datasets`
-- `query-dataset`
+- `search-public-dataset`
 - `preview-dataset-data`
 
 ## 流程
@@ -43,7 +43,7 @@ finebi-cli search-my-datasets -k "<keyword>" -p 1
 如果“我的分析”里没有找到目标数据集，再调用：
 
 ```bash
-finebi-cli query-dataset -k "<keyword>" -p 1 -s 150
+finebi-cli search-public-dataset -k "<keyword>" -p 1 -s 150
 ```
 
 预期结果：
@@ -90,13 +90,13 @@ finebi-cli preview-dataset-data -t <tableName> -p 2
 
 ### 错误 1：跳过“我的分析”
 
-不要默认一开始就用 `query-dataset`。
+不要默认一开始就用 `search-public-dataset`。
 
 正确顺序：
 
 ```text
 search-my-datasets
--> 如果没找到，再 query-dataset
+-> 如果没找到，再 search-public-dataset
 -> preview-dataset-data
 ```
 
@@ -123,7 +123,7 @@ search-my-datasets
 
 ```text
 search-my-datasets
--> 如果没找到，再 query-dataset
+-> 如果没找到，再 search-public-dataset
 -> 确定 tableName
 -> preview-dataset-data(tableName, pageIndex=1)
 -> preview-dataset-data(tableName, pageIndex=2...)
