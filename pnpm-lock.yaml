@@ -23,8 +23,8 @@ importers:
         specifier: ^17.3.1
         version: 17.3.1
       finebi-querydata-sdk:
-        specifier: workspace:*
-        version: link:../querydata-sdk
+        specifier: ^1.0.5
+        version: 1.0.5
     devDependencies:
       '@types/node':
         specifier: ^25.5.0
@@ -804,6 +804,10 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  finebi-querydata-sdk@1.0.5:
+    resolution: {integrity: sha512-xZy1TcTUaAmt9XpXsK/y/dDtOm0r6oy3W3WPIYBnez6pbSnIQ3MobnVkXtj2+Dk1OkQzXF1NumYbi0H8M0iw7g==}
+    engines: {node: '>=22'}
 
   fix-dts-default-cjs-exports@1.0.1:
     resolution: {integrity: sha512-pVIECanWFC61Hzl2+oOCtoJ3F17kglZC/6N94eRWycFgBH35hHx0Li604ZIzhseh97mf2p0cv7vVrOZGoqhlEg==}
@@ -1965,6 +1969,16 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  finebi-querydata-sdk@1.0.5:
+    dependencies:
+      jsdom: 24.1.3
+      lodash-es: 4.18.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
 
   fix-dts-default-cjs-exports@1.0.1:
     dependencies:
