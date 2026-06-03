@@ -6,6 +6,8 @@
 
 这个命令用于替代 agent 手工解析完整 `designConfigure.reportWidgets` 的过程。
 
+不要为了整体看板分析、看板总结、日报、周报或经营概览主动调用这个命令。
+
 ## CLI
 
 ```bash
@@ -65,6 +67,7 @@ finebi-cli resolve-dashboard-widgets -d <dashboardId>
 ## 应该做
 
 - 优先使用这个命令列出组件候选
+- 只在用户明确要求具体组件、图表或指标卡数据时使用
 - 返回结果已经过滤为 `type = 1` 的可取数组件
 - 把 `widgetId` 和组件展示名称一起展示给用户
 - 在找不到唯一组件时先澄清
@@ -72,6 +75,7 @@ finebi-cli resolve-dashboard-widgets -d <dashboardId>
 
 ## 不要做
 
+- 不要在整体看板分析场景主动列组件或取组件数据
 - 不要让 agent 自写 JS、Python 或抓包逻辑解析组件 id
 - 不要把组件名称直接当作 `widgetId`
 - 不要对不在返回列表里的组件 id 调用 `get-widget-data`

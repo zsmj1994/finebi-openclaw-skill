@@ -1,7 +1,7 @@
 ---
 name: "finebi-skills"
 description: "FineBI 主技能入口。先识别用户目标，再路由到 dashboard-briefing、report-to-doc、alert-to-task、sync-to-bitable 等子技能。"
-version: 0.2.30
+version: 0.2.31
 author: zsmj1994
 tags:
   - finebi
@@ -136,7 +136,8 @@ npm install -g finebi-cli
 - 只要后续流程需要 `dashboardId`，必须先按 `references/dashboard-id-resolution-flow.md` 判断来源并解析 id。
 - 定位仪表板时，默认先从挂出目录或已发布入口查找，再从“我的分析”查找。
 - 调用 `get-entry-tree` 读取目录树时，应优先使用 `-k <keyword>` 过滤，避免拉取过大的目录树响应。
-- 组件级问题或精确数值问题，必须先用 `resolve-dashboard-widgets` 获取可取数组件候选，再调用 `get-widget-data`。
+- 只有用户明确要求某个具体组件、图表或指标卡的数据时，才进入组件取数链路。
+- 组件取数必须先用 `resolve-dashboard-widgets` 获取可取数组件候选，再调用 `get-widget-data`。
 - 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。
 - 复核 FineBI Excel 导出内容时，必须用 `read_only=False` 打开工作簿检查真实单元格内容。
 - 禁止伪造指标、趋势、负责人、任务状态、导出结果和同步结果。

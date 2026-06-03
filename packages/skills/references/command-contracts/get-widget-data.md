@@ -9,6 +9,8 @@
 - `dashboardId`
 - 通过 `resolve-dashboard-widgets` 解析出的可取数组件 `widgetId`
 
+不要为了整体看板分析、看板总结、日报、周报或经营概览主动调用这个命令。
+
 ## CLI
 
 基础调用：

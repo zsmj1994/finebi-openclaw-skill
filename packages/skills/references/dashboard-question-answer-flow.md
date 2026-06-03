@@ -2,7 +2,7 @@
 
 ## 目标
 
-当用户围绕 FineBI 看板、图表、指标卡或组件提问时，使用固定 CLI 链路定位 `dashboardId`，优先导出 PDF 做整体分析；只有组件级问题或需要精确数值时，再定位 `widgetId` 并用真实组件数据回答。
+当用户围绕 FineBI 看板、图表、指标卡或组件提问时，使用固定 CLI 链路定位 `dashboardId`，优先导出 PDF 做整体分析；只有用户明确要求某个具体组件、图表或指标卡的数据时，再定位 `widgetId` 并用真实组件数据回答。
 
 这个流程用于降低自由度，避免 agent 在找不到 id 时脱离 skill 自写脚本、抓页面或猜接口。
 
@@ -22,7 +22,7 @@
 -> 读取 dashboard-id-resolution-flow.md
 -> 只用 CLI 解析 dashboardId
 -> 如果是整体仪表板分析，优先 export-dashboard-pdf
--> 如果是组件级问题或需要精确数值，再读取 dashboard-widget-data-flow.md
+-> 只有明确要求具体组件数据时，才读取 dashboard-widget-data-flow.md
 -> resolve-dashboard-widgets
 -> 从 widgets 选择 widgetId
 -> get-widget-data
@@ -88,10 +88,14 @@ finebi-cli export-dashboard-pdf -r <dashboardId>
 
 规则：
 
-- 整体看板分析优先使用 PDF，因为 PDF 保留布局、标题、图表上下文和视觉关系。
+- 整体看板分析和快速出报告场景优先使用 PDF，因为 PDF 保留布局、标题、图表上下文和视觉关系。
+- 如果用户需要详细数据，优先导出 Excel。
+- 如果用户需要整体仪表板所有组件的精确数据，可以调用 `export-dashboard-excel`，不要改成逐个组件主动取数。
+- Excel 导出结果中，每个 sheet 对应一个组件，sheet 名就是组件显示名。
 - 不要在整体分析场景一开始就逐个猜 `widgetId`。
+- 不要为了补充整体看板数据而主动调用 `resolve-dashboard-widgets` 或 `get-widget-data`。
 - 如果 PDF 已足够回答，就直接基于 PDF 输出分析。
-- 如果 PDF 中的数值不够精确，或用户追问某个组件，再进入下一步解析 `widgetId`。
+- 如果 PDF 中的数值不够精确，先说明精度限制；详细数据或整体仪表板所有组件精确数据走 Excel，只有用户明确要求某个具体组件、图表或指标卡的数据时，再进入下一步解析 `widgetId`。
 - 如果 PDF 导出失败，明确说明导出失败和错误；不要伪造 PDF 内容。
 
 固定链路：
@@ -101,10 +105,15 @@ finebi-cli export-dashboard-pdf -r <dashboardId>
 -> dashboardId
 -> export-dashboard-pdf
 -> 基于 PDF 进行整体分析
--> 如需精确数值，再进入组件取数链路
+-> 如需详细数据或所有组件精确数据，导出 Excel
+-> 如需具体组件数据，等待用户明确指定后再进入组件取数链路
 ```
 
 ## 第 4 步：组件级问题再解析 widgetId
+
+只有用户明确要求某个具体组件、图表、表格或指标卡的数据时，才执行本步骤。
+
+不要因为“整体看板数据”“整体分析”“总结看板”这类需求而主动解析组件列表。
 
 读取并执行：
 
@@ -187,7 +196,7 @@ finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
 ```text
 停止
 -> 说明 export-dashboard-pdf 的错误
--> 如用户需要精确组件数据，再询问是否改走组件取数链路
+-> 如用户明确需要具体组件数据，再询问是否改走组件取数链路
 -> 不伪造 PDF 内容
 ```
 
@@ -214,7 +223,7 @@ finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
 问题
 -> dashboardId: dashboard-id-resolution-flow
 -> 整体分析: export-dashboard-pdf -> PDF 分析
--> 组件级或精确数值: resolve-dashboard-widgets -> get-widget-data
+-> 明确具体组件数据: resolve-dashboard-widgets -> get-widget-data
 -> 基于 PDF 或真实组件数据回答
 
 任一步失败
