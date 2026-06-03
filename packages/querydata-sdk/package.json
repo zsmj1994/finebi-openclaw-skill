@@ -1,6 +1,6 @@
 {
   "name": "finebi-querydata-sdk",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "SDK for querying FineBI dashboard data and applying filters in a simulated browser environment.",
   "type": "module",
   "main": "dist/index.js",
@@ -20,6 +20,7 @@
     "generate:embedded-assets": "node ./scripts/generate-embedded-assets.mjs",
     "build": "pnpm run generate:embedded-assets && tsup src/index.ts --format esm --dts",
     "typecheck": "pnpm run generate:embedded-assets && tsc --noEmit",
+    "test": "pnpm run build && node --test tests/*.test.mjs",
     "clean": "if (Test-Path dist) { Remove-Item -Recurse -Force dist }",
     "start": "ts-node src/index.ts",
     "prepack": "pnpm run build",

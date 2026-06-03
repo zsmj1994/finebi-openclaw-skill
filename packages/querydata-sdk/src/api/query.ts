@@ -1,4 +1,4 @@
-import { FineBIContext, QueryOptions } from '../types';
+import { FineBIContext, WidgetDataOptions } from '../types';
 
 export class QueryAPI {
   private context: FineBIContext;
@@ -13,7 +13,7 @@ export class QueryAPI {
   /**
    * Query widget data.
    */
-  public async getWidgetData(wId: string): Promise<any> {
+  public async getWidgetData(wId: string, options: WidgetDataOptions = {}): Promise<any> {
     const { window } = this.context;
     const BI = window.BI;
 
@@ -49,6 +49,24 @@ export class QueryAPI {
 
     const json = await response.json();
     const { perform, ...rest } = json;
+    if (options.compact !== false && rest.data?.resultType === 'CHART') {
+      const { resultType, shared, geoms } = rest.data;
+      const compactGeoms = Array.isArray(geoms)
+        ? geoms.map((geom) => {
+          if (!geom || typeof geom !== 'object') {
+            return geom;
+          }
+          const { options: _options, ...restGeom } = geom;
+          return restGeom;
+        })
+        : geoms;
+
+      return {
+        ...rest,
+        data: { resultType, shared, geoms: compactGeoms },
+      };
+    }
+
     return rest;
   }
 }

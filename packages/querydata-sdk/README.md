@@ -57,6 +57,8 @@ try {
 }
 ```
 
+`getWidgetData(widgetId, { compact })` compacts CHART response data by default, keeping only `resultType`, `shared`, and `geoms`; each geom's top-level `options` field is removed. Pass `{ compact: false }` only when the full response shape is required.
+
 ## Filter control value structures
 
 `applyFilter` 的 `filterValue` 字段结构取决于组件的 `widgetType`。

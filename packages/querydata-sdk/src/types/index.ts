@@ -4,6 +4,10 @@ export interface QueryOptions {
   [key: string]: any;
 }
 
+export interface WidgetDataOptions {
+  compact?: boolean;
+}
+
 // ----------------------------------------------------------------
 // Filter control value types
 // ----------------------------------------------------------------

@@ -3,6 +3,9 @@ export interface QueryOptions {
     widgetId?: string;
     [key: string]: any;
 }
+export interface WidgetDataOptions {
+    compact?: boolean;
+}
 export interface FilterOptions {
     widgetId?: string;
     widgetType?: number;
