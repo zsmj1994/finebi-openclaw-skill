@@ -92,6 +92,7 @@ finebi-cli export-dashboard-excel -r <dashboardId>
 - 如果需要快速分析，或者需要仪表板快照，使用 PDF，因为 PDF 保留布局、标题、图表上下文和视觉关系
 - 如果用户需要整体仪表板所有组件的精确数据，可以调用 `export-dashboard-excel`，不要改成逐个组件主动取数。
 - Excel 导出结果中，每个 sheet 对应一个组件，sheet 名就是组件显示名。
+- Excel 文件名、sheet 名、组件显示名和内容可能包含中文；读取 `.xlsx` 时使用 Excel 解析库并原样保留中文名称，不要按文本或 CSV 编码方式读取。
 - 不要在整体分析场景一开始就逐个猜 `widgetId`。
 - 不要为了补充整体看板数据而主动调用 `resolve-dashboard-widgets` 或 `get-widget-data`。
 - 如果 PDF 已足够回答，就直接基于 PDF 输出分析。
