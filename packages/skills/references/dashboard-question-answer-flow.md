@@ -49,15 +49,17 @@
 允许使用的命令链路只有：
 
 ```text
-挂出目录或已发布入口:
+第一优先级: 挂出目录或已发布入口
 get-entry-tree
 -> get-published-subject-resources
 -> dashboardId
 
-我的分析:
+第二优先级: 我的分析
 search-my-dashboards
 -> reportId
 ```
+
+默认先查挂出目录；没有唯一命中时，再查“我的分析”。
 
 如果找不到唯一 `dashboardId`：
 

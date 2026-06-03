@@ -7,14 +7,15 @@
 ## 核心原则
 
 - 不要把用户输入的名称直接当成 `dashboardId`。
-- 先判断仪表板来源，再决定使用哪条命令链路。
-- 如果来源不明确，先做最小化消歧，不要直接猜。
+- 优先从挂出目录或已发布入口查找仪表板。
+- 挂出目录没有命中或不能唯一命中时，再从“我的分析”查找。
+- 如果两条链路都有候选，展示候选并请用户确认。
 
 ## 两条来源链路
 
 ### 来源一：挂出目录或已发布入口
 
-当用户提到以下信号时，优先走这条链路：
+无论用户是否明确说明来源，都先走这条链路。用户提到以下信号时，更必须优先走这条链路：
 
 - 挂出
 - 发布
@@ -44,7 +45,7 @@ get-entry-tree
 
 ### 来源二：我的分析中的仪表板
 
-当用户提到以下信号时，优先走这条链路：
+默认顺序中，只有挂出目录链路没有命中或不能唯一命中时，才走这条链路。若用户明确限定“只查我的分析”，可以直接走这条链路：
 
 - 我的分析
 - 我做的看板
@@ -64,10 +65,11 @@ search-my-dashboards
 
 如果用户没有明确说来源：
 
-1. 先根据措辞判断是否带有“挂出目录/发布入口”语义。
-2. 如果明显带有目录或挂出语义，优先走 `get-entry-tree`。
-3. 否则默认先走 `search-my-dashboards`。
-4. 如果 `search-my-dashboards` 不能唯一命中，再询问用户这是“挂出目录里的看板”还是“我的分析里的看板”。
+1. 先调用 `get-entry-tree`，在挂出目录或已发布入口中匹配看板。
+2. 如果目录候选唯一，继续 `get-published-subject-resources` 并解析 `dashboardId`。
+3. 如果目录没有命中，再调用 `search-my-dashboards` 查“我的分析”。
+4. 如果目录和“我的分析”都有候选，展示来源、名称和 id 字段，请用户确认。
+5. 如果两条链路都不能唯一命中，再询问用户更准确的看板名或来源。
 
 ## 常见错误
 
@@ -82,12 +84,12 @@ search-my-dashboards
 正确做法：
 
 ```text
-先判断来源 -> 再用对应命令解析 dashboardId
+先查挂出目录 -> 未唯一命中再查我的分析 -> 解析 dashboardId
 ```
 
-### 错误 2：看到“目录里的看板”却直接搜我的分析
+### 错误 2：来源不明确时直接搜我的分析
 
-如果用户强调的是目录、节点、挂出、发布，应优先走 `get-entry-tree`。
+默认先查挂出目录。只有挂出目录没有唯一命中，才继续查“我的分析”。
 
 ### 错误 3：把 `get-entry-tree` 结果直接当成 dashboard 列表
 
@@ -104,8 +106,7 @@ search-my-dashboards
 
 ```text
 需要 dashboardId
--> 先判断来源
--> 挂出目录: get-entry-tree -> templateId -> published resources -> dashboardId
--> 我的分析: search-my-dashboards -> reportId
--> 来源不明确: 默认先 search-my-dashboards, 必要时消歧
+-> 先查挂出目录: get-entry-tree -> templateId -> published resources -> dashboardId
+-> 未唯一命中再查我的分析: search-my-dashboards -> reportId
+-> 两边都有候选或都不唯一: 展示候选并消歧
 ```

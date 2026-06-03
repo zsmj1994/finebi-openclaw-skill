@@ -1,7 +1,7 @@
 ---
 name: "finebi-skills"
 description: "FineBI 主技能入口。先识别用户目标，再路由到 dashboard-briefing、report-to-doc、alert-to-task、sync-to-bitable 等子技能。"
-version: 0.2.27
+version: 0.2.28
 author: zsmj1994
 tags:
   - finebi
@@ -134,6 +134,7 @@ npm install -g finebi-cli
 - 先定位数据对象，再执行动作。数据对象可能是 `dashboard`、`dataset`、`subject`、`widget`。
 - 看板问答、指标解释和组件取数场景，必须先按 `references/dashboard-question-answer-flow.md` 执行。
 - 只要后续流程需要 `dashboardId`，必须先按 `references/dashboard-id-resolution-flow.md` 判断来源并解析 id。
+- 定位仪表板时，默认先从挂出目录或已发布入口查找，再从“我的分析”查找。
 - 组件级问题或精确数值问题，必须先用 `resolve-dashboard-widgets` 获取可取数组件候选，再调用 `get-widget-data`。
 - 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。
 - 禁止伪造指标、趋势、负责人、任务状态、导出结果和同步结果。

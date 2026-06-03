@@ -33,9 +33,9 @@
 
 它可能来自：
 
+- 已发布资源流程
 - `search-my-dashboards`
 - `get-dashboards-by-subject`
-- 已发布资源流程
 
 ### 第 2 步：优先解析组件清单
 

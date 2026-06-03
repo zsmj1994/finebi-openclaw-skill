@@ -26,6 +26,8 @@
 
 ## Dashboard 相关命令
 
+- `get-entry-tree`
+- `get-published-subject-resources`
 - `search-my-dashboards`
 - `get-dashboard-user-info`
 - `get-dashboards-by-subject`
@@ -51,6 +53,7 @@
 ## 使用规则
 
 - 技能优先使用这里列出的 CLI 命令名。
+- 定位仪表板时，优先使用 `get-entry-tree -> get-published-subject-resources` 从挂出目录查找，再使用 `search-my-dashboards` 查“我的分析”。
 - 组件问答优先使用 `resolve-dashboard-widgets`，不要优先解析完整 `get-dashboard-design-configure`。
 - `get-dashboard-design-configure` 只用于需要完整配置细节的补充场景。
 - 如果工作流需要 CLI 还没有的能力，写成“缺少 CLI 能力”，不要凭空发明命令。
