@@ -1,7 +1,7 @@
 ---
 name: "finebi-skills"
 description: "FineBI 主技能入口。先识别用户目标，再路由到 dashboard-briefing、report-to-doc、alert-to-task、sync-to-bitable 等子技能。"
-version: 0.2.28
+version: 0.2.29
 author: zsmj1994
 tags:
   - finebi
@@ -137,7 +137,9 @@ npm install -g finebi-cli
 - 定位仪表板时，默认先从挂出目录或已发布入口查找，再从“我的分析”查找。
 - 组件级问题或精确数值问题，必须先用 `resolve-dashboard-widgets` 获取可取数组件候选，再调用 `get-widget-data`。
 - 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。
+- 复核 FineBI Excel 导出内容时，必须用 `read_only=False` 打开工作簿检查真实单元格内容。
 - 禁止伪造指标、趋势、负责人、任务状态、导出结果和同步结果。
+- 禁止仅凭 read-only 模式下的 `max_row`、`max_column` 或首行预览判断 Excel “无数据”或“只有表头”。
 - 禁止通过自写 JS、Python、浏览器自动化、抓包或猜 HTTP 接口等方式绕过 `finebi-cli` 查找 `dashboardId`、`widgetId` 或数据。
 - 如果 CLI 链路无法定位目标，必须停止并澄清或报告“缺少 CLI 能力”，不要自建替代链路。
 - 如果目标对象不唯一，必须先澄清，不能跳步。
