@@ -24,7 +24,13 @@
 
 ### 第 1 步：读取入口树
 
-调用：
+优先从用户问题中提取目录名、栏目名、看板名或路径关键词，并带 `-k` 调用：
+
+```bash
+finebi-cli get-entry-tree -k "<keyword>"
+```
+
+只有没有任何可用关键词、且确实需要浏览目录树时，才调用：
 
 ```bash
 finebi-cli get-entry-tree
@@ -43,6 +49,11 @@ finebi-cli get-entry-tree
 ### 第 2 步：选择目标节点
 
 找到与用户意图匹配的目录或已发布入口。
+
+如果关键词过滤没有命中：
+
+- 先换短关键词、同义词或路径片段重试。
+- 不要马上拉取全量目录树。
 
 如果存在多个近似候选：
 
@@ -97,7 +108,7 @@ get-entry-tree -> selectedNode.id -> get-published-subject-resources
 正确流程：
 
 ```text
-get-entry-tree -> selectedNode.templateId -> get-published-subject-resources
+get-entry-tree -k <keyword> -> selectedNode.templateId -> get-published-subject-resources
 ```
 
 ### 错误 2：把 `templateId` 当成普通展示字段
@@ -112,6 +123,10 @@ get-entry-tree -> selectedNode.templateId -> get-published-subject-resources
 
 应基于 `text` 和 `path` 请用户确认。
 
+### 错误 4：默认拉取全量目录树
+
+`get-entry-tree` 的无过滤响应可能很大。用户提供了任何名称或路径线索时，应优先使用 `-k`。
+
 ## 推荐行为
 
 1. 先确定入口节点。
@@ -123,7 +138,7 @@ get-entry-tree -> selectedNode.templateId -> get-published-subject-resources
 ## 简写版本
 
 ```text
-get-entry-tree
+get-entry-tree -k <keyword>
 -> 按 text/path 选节点
 -> 读取 templateId
 -> get-published-subject-resources(templateId)

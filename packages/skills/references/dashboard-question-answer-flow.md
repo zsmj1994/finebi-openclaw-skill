@@ -50,7 +50,7 @@
 
 ```text
 第一优先级: 挂出目录或已发布入口
-get-entry-tree
+get-entry-tree -k <keyword>
 -> get-published-subject-resources
 -> dashboardId
 
@@ -60,6 +60,7 @@ search-my-dashboards
 ```
 
 默认先查挂出目录；没有唯一命中时，再查“我的分析”。
+调用 `get-entry-tree` 时，应优先从用户问题提取关键词并带 `-k`，避免拉取过大的目录树。
 
 如果找不到唯一 `dashboardId`：
 

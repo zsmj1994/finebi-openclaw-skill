@@ -53,7 +53,8 @@
 ## 使用规则
 
 - 技能优先使用这里列出的 CLI 命令名。
-- 定位仪表板时，优先使用 `get-entry-tree -> get-published-subject-resources` 从挂出目录查找，再使用 `search-my-dashboards` 查“我的分析”。
+- 定位仪表板时，优先使用 `get-entry-tree -k <keyword> -> get-published-subject-resources` 从挂出目录查找，再使用 `search-my-dashboards` 查“我的分析”。
+- 调用 `get-entry-tree` 时应尽量带 `-k <keyword>`，避免目录树响应过大。
 - 组件问答优先使用 `resolve-dashboard-widgets`，不要优先解析完整 `get-dashboard-design-configure`。
 - 复核 `export-dashboard-excel` 结果时，必须用 `read_only=False` 检查真实单元格内容。
 - `get-dashboard-design-configure` 只用于需要完整配置细节的补充场景。
