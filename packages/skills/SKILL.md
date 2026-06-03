@@ -133,9 +133,10 @@ npm install -g finebi-cli
 - 先确认 `finebi-cli` 和 FineBI 环境可用，再执行业务流程。
 - 先定位数据对象，再执行动作。数据对象可能是 `dashboard`、`dataset`、`subject`、`widget`。
 - 看板问答、指标解释和组件取数场景，必须先按 `references/dashboard-question-answer-flow.md` 执行。
-- 只要后续流程需要 `dashboardId`，必须先按 `references/dashboard-id-resolution-flow.md` 判断来源并解析 id。
+- 只要后续流程需要看板的id `dashboardId`，必须先按 `references/dashboard-id-resolution-flow.md` 判断来源并解析 id。
 - 定位仪表板时，默认先从挂出目录或已发布入口查找，再从“我的分析”查找。
-- 调用 `get-entry-tree` 读取目录树时，应优先使用 `-k <keyword>` 过滤，避免拉取过大的目录树响应。
+- 调用 `get-entry-tree` 读取目录树时，应优先使用 `-k <keyword>` 过滤，避免拉取过大的目录树响应。同时注意`get-entry-tree` 的响应结果中的`templateId`禁止作为 `dashboardId` 使用。
+- `export-dashboard-excel` 获取仪表板中所有组件完整数据。
 - 只有用户明确要求某个具体组件、图表或指标卡的数据时，才进入组件取数链路。
 - 组件取数必须先用 `resolve-dashboard-widgets` 获取可取数组件候选，再调用 `get-widget-data`。
 - 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。

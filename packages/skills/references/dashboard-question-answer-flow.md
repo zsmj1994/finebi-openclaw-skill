@@ -21,7 +21,7 @@
 -> 判断是否需要看板或组件真实数据
 -> 读取 dashboard-id-resolution-flow.md
 -> 只用 CLI 解析 dashboardId
--> 如果是整体仪表板分析，优先 export-dashboard-pdf
+-> 如果是整体仪表板分析，优先 export-dashboard-pdf 和 export-dashboard-excel
 -> 只有明确要求具体组件数据时，才读取 dashboard-widget-data-flow.md
 -> resolve-dashboard-widgets
 -> 从 widgets 选择 widgetId
@@ -68,9 +68,9 @@ search-my-dashboards
 - 没有候选时，询问用户看板来源或更准确的看板名。
 - 不要写脚本继续搜索。
 
-## 第 3 步：整体分析优先导出 PDF
+## 第 3 步：整体分析优先导出EXCEL
 
-当用户意图是整体仪表板分析时，优先导出 PDF 再分析。
+当用户意图是整体仪表板分析时，优先导出EXCEL再分析。
 
 适用场景：
 
@@ -83,13 +83,13 @@ search-my-dashboards
 调用：
 
 ```bash
-finebi-cli export-dashboard-pdf -r <dashboardId>
+finebi-cli export-dashboard-excel -r <dashboardId>
 ```
 
 规则：
 
-- 整体看板分析和快速出报告场景优先使用 PDF，因为 PDF 保留布局、标题、图表上下文和视觉关系。
-- 如果用户需要详细数据，优先导出 Excel。
+- 整体看板分析和报告场景优先使用 EXCEL，因为 EXCEL 中按sheet导出来看板中所有组件的精确数据。
+- 如果需要快速分析，或者需要仪表板快照，使用 PDF，因为 PDF 保留布局、标题、图表上下文和视觉关系
 - 如果用户需要整体仪表板所有组件的精确数据，可以调用 `export-dashboard-excel`，不要改成逐个组件主动取数。
 - Excel 导出结果中，每个 sheet 对应一个组件，sheet 名就是组件显示名。
 - 不要在整体分析场景一开始就逐个猜 `widgetId`。
@@ -103,9 +103,9 @@ finebi-cli export-dashboard-pdf -r <dashboardId>
 ```text
 整体仪表板分析
 -> dashboardId
--> export-dashboard-pdf
--> 基于 PDF 进行整体分析
--> 如需详细数据或所有组件精确数据，导出 Excel
+-> export-dashboard-excel
+-> 基于 excel 进行整体分析
+-> 如需贴近视觉效果的展示或者保留快照，导出 PDF
 -> 如需具体组件数据，等待用户明确指定后再进入组件取数链路
 ```
 
