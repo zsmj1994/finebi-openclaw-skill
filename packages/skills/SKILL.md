@@ -132,15 +132,19 @@ npm install -g finebi-cli
 
 - 先确认 `finebi-cli` 和 FineBI 环境可用，再执行业务流程。
 - 先定位数据对象，再执行动作。数据对象可能是 `dashboard`、`dataset`、`subject`、`widget`。
+- 看板问答、指标解释和组件取数场景，必须先按 `references/dashboard-question-answer-flow.md` 执行。
 - 只要后续流程需要 `dashboardId`，必须先按 `references/dashboard-id-resolution-flow.md` 判断来源并解析 id。
 - 先拿到 FineBI 的真实输出，再做摘要、判断、告警、写文档或同步。
 - 禁止伪造指标、趋势、负责人、任务状态、导出结果和同步结果。
+- 禁止通过自写 JS、Python、浏览器自动化、抓包或猜 HTTP 接口等方式绕过 `finebi-cli` 查找 `dashboardId`、`widgetId` 或数据。
+- 如果 CLI 链路无法定位目标，必须停止并澄清或报告“缺少 CLI 能力”，不要自建替代链路。
 - 如果目标对象不唯一，必须先澄清，不能跳步。
 - 如果子技能匹配已经明确，直接按子技能流程继续，不要在主技能里重复展开细节。
 
 ## 公共参考
 
 - CLI 命令与契约：`references/cli-command-map.md`
+- 看板问答取数链路：`references/dashboard-question-answer-flow.md`
 - 仪表板 id 解析：`references/dashboard-id-resolution-flow.md`
 - 仪表板组件取数：`references/dashboard-widget-data-flow.md`
 - 数据集查找与预览：`references/dataset-search-and-preview-flow.md`
