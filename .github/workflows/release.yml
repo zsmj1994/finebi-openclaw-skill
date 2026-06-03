@@ -1,0 +1,166 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Validate and package only; skip all publish steps"
+        required: true
+        default: true
+        type: boolean
+      publish_npm:
+        description: "Publish selected npm package(s)"
+        required: true
+        default: false
+        type: boolean
+      npm_scope:
+        description: "Which npm package(s) to publish"
+        required: true
+        default: "sdk-cli"
+        type: choice
+        options:
+          - "sdk-cli"
+          - "sdk"
+          - "cli"
+          - "skills"
+          - "all"
+      publish_clawhub:
+        description: "Publish finebi-skills to ClawHub"
+        required: true
+        default: false
+        type: boolean
+      publish_github_release:
+        description: "Upload finebi-skills zip to GitHub Release"
+        required: true
+        default: false
+        type: boolean
+      github_tag:
+        description: "Optional GitHub Release tag; defaults to finebi-skills-v<version>"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release packages
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Enable pnpm
+        shell: pwsh
+        run: corepack enable
+
+      - name: Install dependencies
+        shell: pwsh
+        run: pnpm install --frozen-lockfile
+
+      - name: Check SDK and CLI release gates
+        if: ${{ inputs.publish_npm && (inputs.npm_scope == 'sdk-cli' || inputs.npm_scope == 'all') }}
+        shell: pwsh
+        run: pnpm run release:check:core
+
+      - name: Check SDK release gate
+        if: ${{ inputs.publish_npm && inputs.npm_scope == 'sdk' }}
+        shell: pwsh
+        run: pnpm run release:check:sdk
+
+      - name: Check CLI release gate
+        if: ${{ inputs.publish_npm && inputs.npm_scope == 'cli' }}
+        shell: pwsh
+        run: pnpm run release:check:cli
+
+      - name: Package finebi-skills zip
+        shell: pwsh
+        run: pnpm run release:skills:zip:dry-run
+
+      - name: Upload finebi-skills zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: finebi-skills-zip
+          path: dist/releases/finebi-skills-*.zip
+          if-no-files-found: error
+
+      - name: Publish SDK to npm
+        if: ${{ !inputs.dry_run && inputs.publish_npm && (inputs.npm_scope == 'sdk-cli' || inputs.npm_scope == 'sdk' || inputs.npm_scope == 'all') }}
+        shell: pwsh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if (-not $env:NODE_AUTH_TOKEN) {
+            throw "Missing required secret: NPM_TOKEN"
+          }
+          pnpm run publish:sdk
+
+      - name: Publish CLI to npm
+        if: ${{ !inputs.dry_run && inputs.publish_npm && (inputs.npm_scope == 'sdk-cli' || inputs.npm_scope == 'cli' || inputs.npm_scope == 'all') }}
+        shell: pwsh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if (-not $env:NODE_AUTH_TOKEN) {
+            throw "Missing required secret: NPM_TOKEN"
+          }
+          pnpm run publish:cli
+
+      - name: Publish skills package to npm
+        if: ${{ !inputs.dry_run && inputs.publish_npm && (inputs.npm_scope == 'skills' || inputs.npm_scope == 'all') }}
+        shell: pwsh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if (-not $env:NODE_AUTH_TOKEN) {
+            throw "Missing required secret: NPM_TOKEN"
+          }
+          pnpm run publish:skills
+
+      - name: Login to ClawHub
+        if: ${{ !inputs.dry_run && inputs.publish_clawhub }}
+        shell: pwsh
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if (-not $env:CLAWHUB_TOKEN) {
+            throw "Missing required secret: CLAWHUB_TOKEN"
+          }
+          npx clawhub --no-input login --token "$env:CLAWHUB_TOKEN" --no-browser
+          npx clawhub whoami
+
+      - name: Publish finebi-skills to ClawHub
+        if: ${{ !inputs.dry_run && inputs.publish_clawhub }}
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/release-finebi-skills.ps1 -Target ClawHub
+          pnpm run clawhub:inspect:skills
+
+      - name: Publish finebi-skills to GitHub Release
+        if: ${{ !inputs.dry_run && inputs.publish_github_release }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $args = @(
+            "-NoProfile",
+            "-ExecutionPolicy", "Bypass",
+            "-File", "./scripts/release-finebi-skills.ps1",
+            "-Target", "GitHub",
+            "-GitHubRepo", "${{ github.repository }}"
+          )
+
+          $tag = "${{ inputs.github_tag }}"
+          if (-not [string]::IsNullOrWhiteSpace($tag)) {
+            $args += @("-GitHubTag", $tag)
+          }
+
+          powershell @args

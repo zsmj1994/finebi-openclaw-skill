@@ -58,3 +58,28 @@ Publish every public package in the workspace:
 ```bash
 pnpm run publish:all
 ```
+
+## GitHub Actions release
+
+Use the `Release` workflow in GitHub Actions for CI-based releases.
+
+The workflow is manually triggered with `workflow_dispatch`. It defaults to
+`dry_run=true`, which validates, packages `finebi-skills`, and uploads the zip
+as an Actions artifact without publishing.
+
+Required secrets:
+
+- `NPM_TOKEN`: npm automation token for npm package publishing.
+- `CLAWHUB_TOKEN`: ClawHub API token, used with `clawhub login --token`.
+
+Release targets:
+
+- npm: publish SDK, CLI, skills, or all selected packages.
+- ClawHub: publish `finebi-skills` through `scripts/release-finebi-skills.ps1`.
+- GitHub Release: upload `dist/releases/finebi-skills-x.y.z.zip` using the
+  built-in `GITHUB_TOKEN`.
+
+Typical full release:
+
+1. Run the workflow once with `dry_run=true`.
+2. Re-run with `dry_run=false` and select the intended publish targets.
