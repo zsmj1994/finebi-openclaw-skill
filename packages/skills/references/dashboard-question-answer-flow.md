@@ -23,8 +23,8 @@
 -> 只用 CLI 解析 dashboardId
 -> 如果是整体仪表板分析，优先 export-dashboard-pdf
 -> 如果是组件级问题或需要精确数值，再读取 dashboard-widget-data-flow.md
--> get-dashboard-design-configure
--> 从 reportWidgets 选择 widgetId
+-> resolve-dashboard-widgets
+-> 从 widgets 选择 widgetId
 -> get-widget-data
 -> 基于 PDF 或真实组件数据回答
 ```
@@ -110,20 +110,26 @@ finebi-cli export-dashboard-pdf -r <dashboardId>
 必须先调用：
 
 ```bash
-finebi-cli get-dashboard-design-configure -d <dashboardId>
+finebi-cli resolve-dashboard-widgets -d <dashboardId>
 ```
 
-然后只从 `reportWidgets` 中选择组件：
+然后只从 `widgets` 中选择组件：
 
-- 使用对象 key 作为 `widgetId`
+- 使用 `widgets[].widgetId` 作为 `widgetId`
 - 只选择 `type = 1` 的可取数组件
-- 使用组件标题、位置线索或配置字段和用户问题匹配
+- 使用 `name`、`title` 或位置线索和用户问题匹配
 
 如果找不到唯一 `widgetId`：
 
 - 展示可取数组件候选，包含组件标题和组件 id。
 - 请用户确认目标组件。
 - 不要写脚本扫描页面或猜组件 id。
+
+如果 `widgets` 为空：
+
+- 说明当前 CLI 没有解析到可取数组件。
+- 整体分析场景回到 PDF 结果回答。
+- 精确组件数据场景停止并说明缺少可取数组件候选，不要继续绕路。
 
 ## 第 5 步：获取组件数据
 
@@ -205,7 +211,7 @@ finebi-cli get-widget-data -r <dashboardId> -w <widgetId>
 问题
 -> dashboardId: dashboard-id-resolution-flow
 -> 整体分析: export-dashboard-pdf -> PDF 分析
--> 组件级或精确数值: dashboard-widget-data-flow -> get-widget-data
+-> 组件级或精确数值: resolve-dashboard-widgets -> get-widget-data
 -> 基于 PDF 或真实组件数据回答
 
 任一步失败

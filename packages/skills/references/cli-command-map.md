@@ -8,6 +8,7 @@
 
 - `command-contracts/get-entry-tree.md`
 - `command-contracts/get-published-subject-resources.md`
+- `command-contracts/resolve-dashboard-widgets.md`
 - `command-contracts/get-widget-data.md`
 - `command-contracts/search-my-datasets.md`
 - `command-contracts/search-public-dataset.md`
@@ -28,8 +29,8 @@
 - `search-my-dashboards`
 - `get-dashboard-user-info`
 - `get-dashboards-by-subject`
+- `resolve-dashboard-widgets`
 - `get-widget-data`
-- `get-dashboard-style`
 - `get-dashboard-design-configure`
 - `export-dashboard-excel`
 - `export-dashboard-pdf`
@@ -50,5 +51,7 @@
 ## 使用规则
 
 - 技能优先使用这里列出的 CLI 命令名。
+- 组件问答优先使用 `resolve-dashboard-widgets`，不要优先解析完整 `get-dashboard-design-configure`。
+- `get-dashboard-design-configure` 只用于需要完整配置细节的补充场景。
 - 如果工作流需要 CLI 还没有的能力，写成“缺少 CLI 能力”，不要凭空发明命令。
 - 主技能和子技能都不应承诺仓库里不存在的 CLI 命令。

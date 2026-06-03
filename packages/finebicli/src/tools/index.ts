@@ -13,6 +13,7 @@ export {
   getDashboardsBySubject,
   getWidgetData,
   getDashboardDesignConfigure,
+  resolveDashboardWidgets,
 } from "./dashboard.js";
 
 export {

@@ -7,7 +7,7 @@
 只有在已经明确以下两件事之后，才应该调用这个命令：
 
 - `dashboardId`
-- 从 `get-dashboard-design-configure` 中解析出组件的 `widgetId`,
+- 通过 `resolve-dashboard-widgets` 解析出的可取数组件 `widgetId`
 
 ## CLI
 
@@ -27,7 +27,7 @@ finebi-cli get-widget-data -r <reportId> -w <widgetId> --linkage '<json>'
 ## 输入契约
 
 - `reportId`：仪表板 id
-- `widgetId`：来自 `reportWidgets` 的组件 id
+- `widgetId`：来自 `resolve-dashboard-widgets` 返回的 `widgets[].widgetId`
 - `filter`：可选，在取数前先应用一次过滤条件
 - `linkage`：可选，在取数前先应用一次联动状态，必须包含 `widgetId` 和 `payload`
 
@@ -74,24 +74,30 @@ finebi-cli get-widget-data -r <reportId> -w <widgetId> --linkage '<json>'
 调用该命令前，必须先调用：
 
 ```bash
-finebi-cli get-dashboard-design-configure -d <dashboardId>
+finebi-cli resolve-dashboard-widgets -d <dashboardId>
 ```
 
 然后检查：
 
-- `data.designConfigure.reportWidgets`
+- `widgets`
 
-`reportWidgets` 应视为对象映射：
+`widgets` 是可取数组件数组：
 
-- 对象的每个 `key` 是组件 id
-- 对象的每个 `value` 是组件配置对象
+- 每个 `widgets[].widgetId` 是后续传给 `get-widget-data -w` 的组件 id
+- 每个 `widgets[].name` 或 `widgets[].title` 是组件展示名称
+- 返回结果已经过滤为 `type = 1` 的可取数组件
+
+只有需要完整配置细节时，才额外调用：
+
+```bash
+finebi-cli get-dashboard-design-configure -d <dashboardId>
+```
 
 ## 重要组件语义
 
-在 `reportWidgets[widgetId]` 中：
-
 - `type = 1`：可取数的数据组件
-- `type = 2`：过滤控件，不能作为 `get-widget-data` 的目标
+- `resolve-dashboard-widgets` 已过滤掉不可取数组件
+- 过滤控件不能作为 `get-widget-data` 的目标
 
 ## 返回契约
 
@@ -102,18 +108,17 @@ finebi-cli get-dashboard-design-configure -d <dashboardId>
 ## 语义说明
 
 - 不要猜测组件 id
-- 不要假设一个看板里的所有组件都能取数
-- `widgetId` 来自 `reportWidgets` 的对象 `key`
+- 不要自己解析完整 `designConfigure.reportWidgets` 来找组件 id
+- `widgetId` 来自 `resolve-dashboard-widgets` 的 `widgets[].widgetId`
 - 如果要模拟用户先过滤、再联动、再取数，可以把 `--filter` 和 `--linkage` 放到同一次命令里
 
 ## 常见后续链路
 
 1. 确认 `dashboardId`
-2. 调用 `get-dashboard-design-configure`
-3. 检查 `designConfigure.reportWidgets`
-4. 选择 `type = 1` 的组件
-5. 使用该对象 `key` 作为 `widgetId`
-6. 调用 `get-widget-data -r <reportId> -w <widgetId>`
+2. 调用 `resolve-dashboard-widgets`
+3. 根据 `widgets[].name` 或 `widgets[].title` 匹配目标组件
+4. 使用 `widgets[].widgetId` 作为 `widgetId`
+5. 调用 `get-widget-data -r <reportId> -w <widgetId>`
 
 如果用户已经明确给出了过滤条件或联动上下文，可在同一次命令里附加：
 
@@ -122,12 +127,12 @@ finebi-cli get-dashboard-design-configure -d <dashboardId>
 
 ## 应该做
 
-- 在 `get-widget-data` 前先调用 `get-dashboard-design-configure`
+- 在 `get-widget-data` 前先调用 `resolve-dashboard-widgets`
 - 在推理过程中同时保留组件标题和组件 id
-- 当目标是取数时，先过滤掉 `type = 2` 控件
+- 找不到唯一组件时，展示候选并请用户确认
 
 ## 不要做
 
 - 不要用过滤控件 id 调用 `get-widget-data`
-- 不要把 `reportWidgets` 当成数组
-- 如果还不知道组件 id，就不要跳过 dashboard 配置查询
+- 不要把组件名或图表标题直接当成 `widgetId`
+- 如果还不知道组件 id，就不要跳过 `resolve-dashboard-widgets`

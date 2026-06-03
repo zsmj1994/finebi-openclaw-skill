@@ -17,6 +17,7 @@ import {
   getPublishedSubjectResources,
   subjectGroupsSearch,
   getDashboardDesignConfigure,
+  resolveDashboardWidgets,
 } from "./tools/index.js";
 import { runInit } from "./init.js";
 
@@ -257,6 +258,15 @@ program
   .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
   .action(async (options) => {
     const res = await getDashboardDesignConfigure(options.dashboardId);
+    handleResult(res);
+  });
+
+program
+  .command("resolve-dashboard-widgets")
+  .description("Resolve widget ids and display names for all data widgets in a dashboard")
+  .requiredOption("-d, --dashboard-id <id>", "Dashboard ID")
+  .action(async (options) => {
+    const res = await resolveDashboardWidgets(options.dashboardId);
     handleResult(res);
   });
 

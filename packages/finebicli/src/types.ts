@@ -215,6 +215,27 @@ export interface DashboardDesignData {
   reportWidgets: Record<string, ReportWidgetEntry>;
 }
 
+/** A flattened dashboard widget item suitable for CLI consumers */
+export interface ResolvedDashboardWidget {
+  /** The reportWidgets key used by get-widget-data */
+  widgetId: string;
+  /** Display name for the widget */
+  name: string;
+  /** Alias of name for compatibility with title-oriented prompts */
+  title: string;
+  /** The underlying widget definition ID */
+  realWidgetId: string;
+  /** Widget type from reportWidgets */
+  type: number;
+}
+
+/** Output of resolve-dashboard-widgets */
+export interface ResolvedDashboardWidgetsData {
+  dashboardId: string;
+  dashboardName: string;
+  widgets: ResolvedDashboardWidget[];
+}
+
 /** Raw designConfigure JSON structure from the pool param API */
 export interface RawDesignConfigure {
   reportId: string;

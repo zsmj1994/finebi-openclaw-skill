@@ -7,7 +7,7 @@
 ```bash
 npm install -g finebi-cli
 finebi-cli init
-finebi-cli query-dataset -k "Sales"
+finebi-cli search-public-dataset -k "Sales"
 ```
 
 ## Package contents
@@ -78,19 +78,28 @@ pnpm pack
 - `search-my-datasets`
 - `search-my-dashboards`
 - `get-publick-datasets-list`
-- `query-dataset`
+- `search-public-dataset`
 - `preview-dataset-data`
 - `get-widget-data`
+- `resolve-dashboard-widgets`
 - `export-dashboard-excel`
 - `export-dashboard-pdf`
 - `export-dashboard-image`
 - `get-dashboard-user-info`
 - `get-dashboards-by-subject`
-- `get-dashboard-style`
 - `get-dashboard-design-configure`
-- `set-dashboard-style`
 
 Run `finebi-cli <command> --help` for command-specific options.
+
+## `resolve-dashboard-widgets`
+
+List all data widgets in a dashboard with their `widgetId` and display name:
+
+```bash
+finebi-cli resolve-dashboard-widgets -d <dashboardId>
+```
+
+Use the returned `widgetId` with `get-widget-data`.
 
 ## `get-widget-data`
 

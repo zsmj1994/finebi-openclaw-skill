@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getWidgetData } from '../src/tools/dashboard.js';
+import { getWidgetData, resolveDashboardWidgets } from '../src/tools/dashboard.js';
 
 const sdkMocks = vi.hoisted(() => ({
   createSdkMock: vi.fn(),
@@ -7,6 +7,7 @@ const sdkMocks = vi.hoisted(() => ({
   sdkQueryGetWidgetDataMock: vi.fn(),
   sdkFilterApplyFilterMock: vi.fn(),
   sdkLinkageApplyLinkageMock: vi.fn(),
+  fineBIAuthFetchMock: vi.fn(),
 }));
 
 vi.mock('finebi-querydata-sdk', () => ({
@@ -20,6 +21,7 @@ vi.mock('../src/helpers.js', () => ({
     baseUrl: 'http://test.com',
     accessToken: 'access-key-123',
   }),
+  fineBIAuthFetch: sdkMocks.fineBIAuthFetchMock,
 }));
 
 describe('Dashboard Tools - getWidgetData', () => {
@@ -68,5 +70,72 @@ describe('Dashboard Tools - getWidgetData', () => {
     expect(sdkMocks.sdkQueryGetWidgetDataMock).toHaveBeenCalledWith('target-widget');
     expect(sdkMocks.destroyMock).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ success: true, data });
+  });
+});
+
+describe('Dashboard Tools - resolveDashboardWidgets', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns widget ids and display names for all data widgets in a dashboard', async () => {
+    sdkMocks.fineBIAuthFetchMock.mockResolvedValue({
+      data: {
+        designConfigure: JSON.stringify({
+          reportId: 'dashboard-1',
+          reportName: 'Sales Dashboard',
+          reportWidgets: {
+            chart_wid: {
+              title: 'Fallback Chart Title',
+              realWidgetId: 'chart_real',
+              type: 1,
+            },
+            table_wid: {
+              title: 'Table Widget Title',
+              realWidgetId: 'table_real',
+              type: 1,
+            },
+            filter_wid: {
+              title: 'Region Filter',
+              realWidgetId: 'filter_real',
+              type: 2,
+            },
+          },
+          widgets: {
+            chart_real: { name: 'Revenue Chart' },
+          },
+        }),
+      },
+    });
+
+    const result = await resolveDashboardWidgets('dashboard-1');
+
+    expect(sdkMocks.fineBIAuthFetchMock).toHaveBeenCalledWith(
+      '/v5/design/report/pool/dashboard-1/param',
+      { method: 'GET' }
+    );
+    expect(result).toEqual({
+      success: true,
+      data: {
+        dashboardId: 'dashboard-1',
+        dashboardName: 'Sales Dashboard',
+        widgets: [
+          {
+            widgetId: 'chart_wid',
+            name: 'Revenue Chart',
+            title: 'Revenue Chart',
+            realWidgetId: 'chart_real',
+            type: 1,
+          },
+          {
+            widgetId: 'table_wid',
+            name: 'Table Widget Title',
+            title: 'Table Widget Title',
+            realWidgetId: 'table_real',
+            type: 1,
+          },
+        ],
+      },
+    });
   });
 });

@@ -9,10 +9,28 @@ import type {
   DashboardDesignData,
   RawDesignConfigure,
   ReportWidgetEntry,
+  ResolvedDashboardWidgetsData,
   ToolResult,
 } from "../types.js";
 import { FineBIQueryDataSDK } from "finebi-querydata-sdk";
 import { fineBIAuthFetch, getConfig } from "../helpers.js";
+
+async function fetchRawDashboardDesignConfigure(dashboardId: string): Promise<RawDesignConfigure> {
+  const url = `/v5/design/report/pool/${encodeURIComponent(dashboardId)}/param`;
+  const response = await fineBIAuthFetch(url, { method: "GET" }) as { data: any };
+
+  const raw = response.data;
+
+  if (typeof raw?.designConfigure === "string") {
+    try {
+      return JSON.parse(raw.designConfigure) as RawDesignConfigure;
+    } catch (e) {
+      throw new Error(`解析 designConfigure 失败: ${e}`);
+    }
+  }
+
+  return { reportId: "", reportName: "" };
+}
 
 /**
  * Get current user information and their created dashboards.
@@ -113,19 +131,7 @@ export async function getDashboardDesignConfigure(
   dashboardId: string
 ): Promise<ToolResult<DashboardDesignData>> {
   try {
-    const url = `/v5/design/report/pool/${encodeURIComponent(dashboardId)}/param`;
-    const response = await fineBIAuthFetch(url, { method: "GET" }) as { data: any };
-
-    const raw = response.data;
-
-    let designConfigure: RawDesignConfigure = { reportId: "", reportName: "" };
-    if (typeof raw?.designConfigure === "string") {
-      try {
-        designConfigure = JSON.parse(raw.designConfigure) as RawDesignConfigure;
-      } catch (e) {
-        throw new Error(`解析 designConfigure 失败: ${e}`);
-      }
-    }
+    const designConfigure = await fetchRawDashboardDesignConfigure(dashboardId);
 
     const reportWidgets: Record<string, ReportWidgetEntry> = {};
 
@@ -147,6 +153,45 @@ export async function getDashboardDesignConfigure(
     };
 
     return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+/**
+ * Resolve all data widget ids and display names for a dashboard.
+ *
+ * This returns a flattened list so agents do not need to parse the full
+ * dashboard design configuration just to find a widget id.
+ */
+export async function resolveDashboardWidgets(
+  dashboardId: string
+): Promise<ToolResult<ResolvedDashboardWidgetsData>> {
+  try {
+    const designConfigure = await fetchRawDashboardDesignConfigure(dashboardId);
+
+    return {
+      success: true,
+      data: {
+        dashboardId: designConfigure.reportId || dashboardId,
+        dashboardName: designConfigure.reportName,
+        widgets: Object.entries(designConfigure.reportWidgets || {})
+          .filter(([, widget]) => widget.type === 1)
+          .map(([widgetId, widget]) => {
+            const name = designConfigure.widgets?.[widget.realWidgetId]?.name ?? widget.title ?? widgetId;
+            return {
+              widgetId,
+              name,
+              title: name,
+              realWidgetId: widget.realWidgetId,
+              type: widget.type,
+            };
+          }),
+      },
+    };
   } catch (error) {
     return {
       success: false,
